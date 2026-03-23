@@ -1,59 +1,68 @@
 @import "tailwindcss";
 
+/* ─── Tailwind v4 theme — registers DM Sans as the font-sans token ──────────── */
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+}
+
 /* ─── Admin Design System ─────────────────────────────────────────────────────
-   Command-center aesthetic. Sharp edges, dense data, immediate feedback.
-   Completely separate from the user app's glassmorphism system.
-   Primary color is shared (#5B23FF) — everything else is different.
+   Clean, data-dense light mode command center.
+   Primary color (#5B23FF) shared with user app — all surfaces are light.
+   Font: DM Sans. Radius: 8px. No gradients on containers.
 ──────────────────────────────────────────────────────────────────────────────── */
 
 :root {
+  /* ── Force light mode — prevents browser dark preference bleeding through ── */
+  color-scheme: light;
+
   /* ── Base surfaces ── */
-  --bg:              #0a0a0f;   /* page background */
-  --surface:         #111118;   /* panels, cards, sidebar */
-  --surface-raised:  #16161f;   /* hover states, selected rows */
-  --surface-overlay: #1c1c28;   /* dropdowns, modals */
+  --bg:              #F7F8FC;   /* page background */
+  --surface:         #FFFFFF;   /* panels, cards, sidebar */
+  --surface-raised:  #F0F2F8;   /* hover states, selected rows */
+  --surface-overlay: #FFFFFF;   /* dropdowns, modals */
 
   /* ── Borders ── */
-  --border:          rgba(255, 255, 255, 0.08);
-  --border-hover:    rgba(255, 255, 255, 0.14);
-  --border-focus:    rgba(91, 35, 255, 0.60);
-  --border-strong:   rgba(255, 255, 255, 0.20);
+  --border:          rgba(0, 0, 0, 0.08);
+  --border-hover:    rgba(0, 0, 0, 0.14);
+  --border-focus:    rgba(91, 35, 255, 0.50);
+  --border-strong:   rgba(0, 0, 0, 0.14);
 
   /* ── Typography ── */
-  --font-sans:       var(--font-inter), 'Inter', system-ui, sans-serif;
-  --text-primary:    rgba(255, 255, 255, 0.95);
-  --text-secondary:  rgba(255, 255, 255, 0.60);
-  --text-muted:      rgba(255, 255, 255, 0.35);
-  --text-disabled:   rgba(255, 255, 255, 0.20);
+  --font-sans:       var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  --text-primary:    #0F0F1A;
+  --text-secondary:  #4B5268;
+  --text-muted:      #8B92A9;
+  --text-disabled:   #C0C5D4;
 
   /* ── Brand ── */
   --primary:         #5B23FF;
-  --primary-hover:   #6d3fff;
-  --primary-muted:   rgba(91, 35, 255, 0.15);
-  --primary-border:  rgba(91, 35, 255, 0.40);
+  --primary-hover:   #4a1be0;
+  --primary-muted:   #EEE9FF;
+  --primary-border:  #DDD6FE;
 
   /* ── Semantic ── */
-  --success:         #10b981;
-  --success-muted:   rgba(16, 185, 129, 0.12);
-  --success-border:  rgba(16, 185, 129, 0.30);
+  --success:         #16A34A;
+  --success-muted:   #F0FDF4;
+  --success-border:  #BBF7D0;
 
-  --error:           #f43f5e;
-  --error-muted:     rgba(244, 63, 94, 0.12);
-  --error-border:    rgba(244, 63, 94, 0.30);
+  --error:           #DC2626;
+  --error-muted:     #FEF2F2;
+  --error-border:    #FECACA;
 
-  --warning:         #f59e0b;
-  --warning-muted:   rgba(245, 158, 11, 0.12);
-  --warning-border:  rgba(245, 158, 11, 0.30);
+  --warning:         #D97706;
+  --warning-muted:   #FFFBEB;
+  --warning-border:  #FDE68A;
 
-  --info:            #3b82f6;
-  --info-muted:      rgba(59, 130, 246, 0.12);
-  --info-border:     rgba(59, 130, 246, 0.30);
+  --info:            #2563EB;
+  --info-muted:      #EFF6FF;
+  --info-border:     #BFDBFE;
 
   /* ── Layout ── */
-  --sidebar-width:         240px;
+  --sidebar-width:           240px;
   --sidebar-width-collapsed: 64px;
-  --header-height:         52px;
-  --radius:                6px;    /* uniform border radius — no soft curves */
+  --header-height:           52px;
+  --radius:                  8px;
 
   /* ── Sidebar transition ── */
   --sidebar-transition: width 200ms ease, transform 200ms ease;
@@ -88,9 +97,8 @@ html, body {
 .text-xl   { font-size: 20px; line-height: 1.3; font-weight: 600; }
 
 /* ─── Compact table rows ─────────────────────────────────────────────────────
-   Replace .card-row entirely. Rows are flat, borderless between themselves,
-   only a bottom divider. The table container holds the outer border.
-   This is the highest-density readable pattern for data tables.
+   Rows are flat with a bottom divider. The table container holds the outer border.
+   Highest-density readable pattern for data tables.
 ──────────────────────────────────────────────────────────────────────────────── */
 
 .data-table {
@@ -106,7 +114,7 @@ html, body {
   padding:          0 16px;
   height:           34px;
   align-items:      center;
-  background:       rgba(255, 255, 255, 0.03);
+  background:       rgba(0, 0, 0, 0.02);
   border-bottom:    1px solid var(--border);
 }
 
@@ -220,23 +228,23 @@ html, body {
   white-space:   nowrap;
 }
 
-.badge-active    { background: var(--success-muted); color: var(--success);  border: 1px solid var(--success-border); }
-.badge-inactive  { background: var(--error-muted);   color: var(--error);    border: 1px solid var(--error-border);   }
-.badge-verified  { background: var(--success-muted); color: var(--success);  border: 1px solid var(--success-border); }
-.badge-pending   { background: var(--warning-muted); color: var(--warning);  border: 1px solid var(--warning-border); }
-.badge-info      { background: var(--info-muted);    color: var(--info);     border: 1px solid var(--info-border);    }
-.badge-primary   { background: var(--primary-muted); color: var(--primary);  border: 1px solid var(--primary-border); }
-.badge-neutral   { background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid var(--border); }
+.badge-active    { background: var(--success-muted); color: var(--success);   border: 1px solid var(--success-border); }
+.badge-inactive  { background: var(--error-muted);   color: var(--error);     border: 1px solid var(--error-border);   }
+.badge-verified  { background: var(--success-muted); color: var(--success);   border: 1px solid var(--success-border); }
+.badge-pending   { background: var(--warning-muted); color: var(--warning);   border: 1px solid var(--warning-border); }
+.badge-info      { background: var(--info-muted);    color: var(--info);      border: 1px solid var(--info-border);    }
+.badge-primary   { background: var(--primary-muted); color: var(--primary);   border: 1px solid var(--primary-border); }
+.badge-neutral   { background: rgba(0,0,0,0.04);     color: var(--text-secondary); border: 1px solid var(--border);   }
+.badge-danger    { background: var(--error-muted);   color: var(--error);     border: 1px solid var(--error-border);   }
 
 /* ─── Flat buttons ───────────────────────────────────────────────────────────── */
-/* No 3D effects, no shadows — decisive and immediate */
 
 .btn {
   display:       inline-flex;
   align-items:   center;
   justify-content: center;
   gap:           6px;
-  height:        34px;
+  height:        36px;
   padding:       0 14px;
   border-radius: var(--radius);
   font-family:   var(--font-sans);
@@ -244,7 +252,7 @@ html, body {
   font-weight:   500;
   cursor:        pointer;
   border:        1px solid transparent;
-  transition:    background 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  transition:    background 120ms ease, border-color 120ms ease, opacity 120ms ease, transform 80ms ease;
   white-space:   nowrap;
   text-decoration: none;
 }
@@ -255,42 +263,42 @@ html, body {
 }
 
 .btn-primary {
-  background:  var(--primary);
-  color:       #fff;
-  border-color:var(--primary);
+  background:   var(--primary);
+  color:        #fff;
+  border-color: var(--primary);
 }
 .btn-primary:hover:not(:disabled) {
-  background:  var(--primary-hover);
-  border-color:var(--primary-hover);
+  background:   var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 
 .btn-secondary {
-  background:  transparent;
-  color:       var(--text-primary);
-  border-color:var(--border-strong);
+  background:   transparent;
+  color:        var(--text-primary);
+  border-color: var(--border-strong);
 }
 .btn-secondary:hover:not(:disabled) {
-  background:  var(--surface-raised);
-  border-color:var(--border-hover);
+  background:   var(--surface-raised);
+  border-color: var(--border-hover);
 }
 
 .btn-ghost {
-  background:  transparent;
-  color:       var(--text-secondary);
-  border-color:transparent;
+  background:   transparent;
+  color:        var(--text-secondary);
+  border-color: transparent;
 }
 .btn-ghost:hover:not(:disabled) {
-  background:  var(--surface-raised);
-  color:       var(--text-primary);
+  background: var(--surface-raised);
+  color:      var(--text-primary);
 }
 
 .btn-danger {
-  background:  var(--error-muted);
-  color:       var(--error);
-  border-color:var(--error-border);
+  background:   var(--error-muted);
+  color:        var(--error);
+  border-color: var(--error-border);
 }
 .btn-danger:hover:not(:disabled) {
-  background:  rgba(244, 63, 94, 0.20);
+  background: var(--error-border);
 }
 
 .btn-sm {
@@ -300,11 +308,11 @@ html, body {
 }
 
 .btn-icon {
-  width:   34px;
+  width:   36px;
   padding: 0;
 }
 .btn-icon.btn-sm {
-  width:   28px;
+  width: 28px;
 }
 
 /* ─── Form inputs ────────────────────────────────────────────────────────────── */
@@ -328,7 +336,8 @@ html, body {
 .input:hover  { border-color: var(--border-hover); }
 .input:focus  {
   border-color: var(--border-focus);
-  background:   var(--surface-raised);
+  background:   var(--surface);
+  box-shadow:   0 0 0 3px var(--primary-muted);
 }
 
 .input-sm {
@@ -352,6 +361,21 @@ html, body {
   display:   flex;
 }
 
+/* Input with left icon — used in login/set-password forms */
+.input-icon-wrap {
+  position: relative;
+  display:  flex;
+  align-items: center;
+}
+.input-icon-wrap .input { padding-left: 38px; }
+.input-icon-left {
+  position:       absolute;
+  left:           11px;
+  color:          var(--text-muted);
+  pointer-events: none;
+  display:        flex;
+}
+
 /* ─── Select ─────────────────────────────────────────────────────────────────── */
 
 .select {
@@ -366,7 +390,7 @@ html, body {
   outline:        none;
   cursor:         pointer;
   appearance:     none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.35)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(0,0,0,0.40)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:   no-repeat;
   background-position: right 10px center;
   transition: border-color 120ms ease;
@@ -566,28 +590,28 @@ html, body {
 /* ─── Header ─────────────────────────────────────────────────────────────────── */
 
 .admin-header {
-  height:       var(--header-height);
-  background:   var(--surface);
-  border-bottom:1px solid var(--border);
-  display:      flex;
-  align-items:  center;
-  padding:      0 20px;
-  gap:          12px;
-  flex-shrink:  0;
+  height:        var(--header-height);
+  background:    var(--surface);
+  border-bottom: 1px solid var(--border);
+  display:       flex;
+  align-items:   center;
+  padding:       0 20px;
+  gap:           12px;
+  flex-shrink:   0;
 }
 
 .header-breadcrumb {
-  flex:      1;
-  display:   flex;
+  flex:       1;
+  display:    flex;
   align-items:center;
-  gap:       6px;
-  font-size: 13px;
-  color:     var(--text-muted);
+  gap:        6px;
+  font-size:  13px;
+  color:      var(--text-muted);
 }
 
 .header-breadcrumb .current {
-  color:      var(--text-primary);
-  font-weight:500;
+  color:       var(--text-primary);
+  font-weight: 500;
 }
 
 .header-actions {
@@ -637,7 +661,7 @@ html, body {
   overflow-y: auto;
   padding:    20px;
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
 }
 
 /* ─── Page header (inside content area) ─────────────────────────────────────── */
@@ -647,6 +671,8 @@ html, body {
   align-items:   center;
   justify-content: space-between;
   margin-bottom: 16px;
+  flex-wrap:     wrap;
+  gap:           8px;
 }
 
 .page-title {
@@ -739,18 +765,77 @@ html, body {
   opacity:       0.4;
 }
 
+/* ─── Auth page panel ────────────────────────────────────────────────────────── */
+
+.auth-panel {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: var(--radius);
+  padding:       28px;
+  box-shadow:    0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
 
 ::-webkit-scrollbar       { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
 
 /* ─── Focus visible ──────────────────────────────────────────────────────────── */
 
 :focus-visible {
   outline:        2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────────── */
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0.85); opacity: 0; }
+  60%  { transform: scale(1.05);             }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .admin-main > * {
+    animation: fadeSlideUp 180ms ease both;
+  }
+
+  .badge {
+    animation: badgePop 200ms ease both;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+/* ─── Form error state ───────────────────────────────────────────────────────── */
+
+.input-error {
+  border-color: var(--error-border) !important;
+  background:   var(--error-muted);
+}
+.input-error:focus {
+  border-color: var(--error) !important;
+  box-shadow:   0 0 0 3px var(--error-muted);
+}
+
+/* ─── Data table header grid ─────────────────────────────────────────────────── */
+
+.data-table-header-grid {
+  /* Overridden inline per table — base provides the display */
+  display: grid;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────────── */
@@ -769,7 +854,37 @@ html, body {
     transform: translateX(0);
   }
 
+  /* On mobile the collapsed class must not shrink the off-canvas sidebar */
   .admin-sidebar.collapsed {
     width: var(--sidebar-width);
+  }
+
+  .admin-main {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items:    flex-start;
+  }
+
+  #mobile-menu-btn {
+    display: flex !important;
+  }
+
+  .header-admin-info .admin-avatar ~ div {
+    display: none;
+  }
+
+  /* Horizontal table scroll on mobile */
+  .data-table {
+    overflow-x: auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  /* Tablet — tighter content padding */
+  .admin-main {
+    padding: 16px;
   }
 }
