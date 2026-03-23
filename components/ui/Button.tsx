@@ -47,6 +47,7 @@ export function Button({
             style={style}
             aria-busy={loading}
             {...props}
+            ref={ref}
         >
             {loading ? (
                 // Inline SVG spinner — no external dependency
