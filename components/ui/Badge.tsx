@@ -18,6 +18,7 @@ interface BadgeProps {
     children: React.ReactNode;
     dot?: boolean;   // shows a colored dot before text
     className?: string;
+    style?: React.CSSProperties;
 }
 
 // Maps security event types to badge variants — keeps switch logic out of tables
@@ -53,9 +54,10 @@ export function Badge({
     children,
     dot = false,
     className = '',
+    style,
 }: BadgeProps) {
     return (
-        <span className={['badge', `badge-${variant}`, className].filter(Boolean).join(' ')}>
+        <span className={['badge', `badge-${variant}`, className].filter(Boolean).join(' ')} style={style}>
             {dot && (
                 <span
                     style={{
