@@ -30,15 +30,16 @@ export default function RootLayout({
                 {children}
                 <Toaster
                     position="top-right"
-                    theme="light"
+                    theme="dark"
                     toastOptions={{
                         style: {
-                            background: 'var(--surface)',
-                            border: '1px solid var(--border)',
-                            color: 'var(--text-primary)',
-                            fontSize: '13px',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+                            background:   'var(--glass-overlay)',
+                            border:       '1px solid var(--glass-overlay-border)',
+                            color:        'var(--text-primary)',
+                            fontSize:     '13px',
+                            borderRadius: '12px',
+                            boxShadow:    '0 16px 48px rgba(0,0,0,0.50)',
+                            backdropFilter: 'blur(48px)',
                         },
                     }}
                 />
