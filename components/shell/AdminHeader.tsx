@@ -47,15 +47,19 @@ const ChevronDownIcon = ({ open }: { open: boolean }) => (
 
 type AdminUser = { firstName: string; lastName: string; email: string; role: 'ADMIN' | 'SUPER_ADMIN' } | null;
 
-/** Role pill badge — SUPER_ADMIN gets primary tint, ADMIN gets neutral. */
+/** Role pill badge — SUPER_ADMIN gets primary glass tint, ADMIN gets neutral glass. */
 function AdminRoleBadge({ role }: { role: 'ADMIN' | 'SUPER_ADMIN' | undefined }) {
     const isSuperAdmin = role === 'SUPER_ADMIN';
     return (
         <span style={{
-            fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
-            background: isSuperAdmin ? 'var(--primary-muted)' : 'var(--surface-raised)',
-            color:      isSuperAdmin ? 'var(--primary)' : 'var(--text-muted)',
-            border:     `1px solid ${isSuperAdmin ? 'var(--primary-border)' : 'var(--border)'}`,
+            fontSize:     11,
+            fontWeight:   500,
+            padding:      '3px 10px',
+            borderRadius: 20,
+            whiteSpace:   'nowrap',
+            background:   isSuperAdmin ? 'var(--primary-glass)' : 'var(--glass-interactive)',
+            color:        isSuperAdmin ? 'var(--primary-text)' : 'var(--text-muted)',
+            border:       `1px solid ${isSuperAdmin ? 'var(--primary-border)' : 'var(--glass-interactive-border)'}`,
         }}>
             {isSuperAdmin ? 'Super Admin' : 'Admin'}
         </span>
