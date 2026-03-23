@@ -67,7 +67,7 @@ export function StatsGrid({ stats, loading }: StatsGridProps) {
                 label="Total users"
                 value={stats?.totalUsers ?? 0}
                 icon={<UsersIcon />}
-                accentColor="#5B23FF"
+                accentColor="var(--primary)"
                 delta={
                     stats
                         ? `${stats.usersPendingIdVerification.toLocaleString()} pending verification`
@@ -81,7 +81,7 @@ export function StatsGrid({ stats, loading }: StatsGridProps) {
                 label="Verified today"
                 value={stats?.usersVerifiedToday ?? 0}
                 icon={<VerifiedIcon />}
-                accentColor="#10b981"
+                accentColor="var(--success)"
                 delta={
                     stats
                         ? `${stats.usersPendingIdVerification.toLocaleString()} still pending`
@@ -99,7 +99,7 @@ export function StatsGrid({ stats, loading }: StatsGridProps) {
                 label="Pending ID verification"
                 value={stats?.usersPendingIdVerification ?? 0}
                 icon={<PendingIcon />}
-                accentColor="#f59e0b"
+                accentColor="var(--warning)"
                 delta={
                     stats
                         ? `${stats.totalVerifications.toLocaleString()} total attempts`
@@ -116,8 +116,8 @@ export function StatsGrid({ stats, loading }: StatsGridProps) {
                 icon={<PassRateIcon />}
                 accentColor={
                     stats && stats.verificationPassRate >= 75
-                        ? '#10b981'
-                        : '#f59e0b'
+                        ? 'var(--success)'
+                        : 'var(--warning)'
                 }
                 delta={
                     stats
