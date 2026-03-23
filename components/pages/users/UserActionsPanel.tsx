@@ -149,7 +149,7 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
     const isSuperAdmin = admin?.role === 'SUPER_ADMIN';
 
     // Modal states
-    const [modal, setModal] = useState
+    const [modal, setModal] = useState<
         | 'deactivate'
         | 'reactivate'
         | 'revoke'
@@ -157,7 +157,7 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
         | 'unverifyId'
         | 'decryptNid'
         | null
-        > (null);
+    >(null);
 
     const [reason, setReason] = useState('');
     const [loading, setLoading] = useState(false);
