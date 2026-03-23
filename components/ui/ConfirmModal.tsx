@@ -29,6 +29,7 @@ interface ConfirmModalProps {
     reason?: string;
     onReasonChange?: (value: string) => void;
     reasonRequired?: boolean;
+    children?: React.ReactNode;
 }
 
 export function ConfirmModal({
