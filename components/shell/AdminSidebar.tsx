@@ -1,9 +1,9 @@
-// AdminSidebar — collapsible left navigation.
+// AdminSidebar — floating glass panel navigation.
 // Collapsed: 64px wide, icons only with tooltip on hover.
 // Expanded: 240px wide, icons + labels.
 // State persists in localStorage via sidebarStore.
 // SUPER_ADMIN sees the Admins nav item — ADMIN role does not.
-// Active route is highlighted with a left accent bar + primary tint.
+// Active item uses glass tint + primary border — no left accent bar.
 'use client';
 
 import React, { useEffect } from 'react';
@@ -14,35 +14,34 @@ import { useAdminAuthStore } from '@/lib/store/admin-auth.store';
 import { NAV_ITEMS, Icon } from '@/constants/navigation';
 import type { NavItem } from '@/constants/navigation';
 
-// ── Tooltip for collapsed state ───────────────────────────────────────────
+// ── Tooltip — shown when sidebar is collapsed and item is hovered ──────────
 
-function NavTooltip({
-    label,
-    visible,
-}: {
-    label: string;
-    visible: boolean;
-}) {
+/**
+ * Floating label tooltip displayed to the right of a collapsed nav icon.
+ * Only renders when visible to avoid unnecessary DOM nodes.
+ */
+function NavTooltip({ label, visible }: { label: string; visible: boolean }) {
     if (!visible) return null;
     return (
         <div
             role="tooltip"
             style={{
-                position: 'absolute',
-                left: 'calc(100% + 8px)',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'var(--surface-overlay)',
-                border: '1px solid var(--border-strong)',
-                borderRadius: 'var(--radius)',
-                padding: '4px 10px',
-                fontSize: 12,
-                fontWeight: 500,
-                color: 'var(--text-primary)',
-                whiteSpace: 'nowrap',
-                pointerEvents: 'none',
-                zIndex: 200,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                position:    'absolute',
+                left:        'calc(100% + 10px)',
+                top:         '50%',
+                transform:   'translateY(-50%)',
+                background:  'var(--glass-overlay)',
+                border:      '1px solid var(--glass-overlay-border)',
+                borderRadius:'var(--radius-md)',
+                padding:     '5px 12px',
+                fontSize:    12,
+                fontWeight:  500,
+                color:       'var(--text-primary)',
+                whiteSpace:  'nowrap',
+                pointerEvents:'none',
+                zIndex:      200,
+                boxShadow:   '0 8px 24px rgba(0,0,0,0.40)',
+                backdropFilter: 'blur(var(--glass-overlay-blur))',
             }}
         >
             {label}
@@ -50,120 +49,12 @@ function NavTooltip({
     );
 }
 
-// ── Main component ────────────────────────────────────────────────────────
-
-export function AdminSidebar() {
-    const pathname = usePathname();
-    const collapsed = useSidebarStore((s) => s.collapsed);
-    const mobileOpen = useSidebarStore((s) => s.mobileOpen);
-    const toggle = useSidebarStore((s) => s.toggle);
-    const closeMobile = useSidebarStore((s) => s.closeMobile);
-    const admin = useAdminAuthStore((s) => s.admin);
-
-    const isSuperAdmin = admin?.role === 'SUPER_ADMIN';
-
-    // Hydrate sidebar state from localStorage on mount
-    useEffect(() => {
-        hydrateSidebar();
-    }, []);
-
-    // Which items to show based on role
-    const visibleItems = NAV_ITEMS.filter(
-        (item) => !item.superAdminOnly || isSuperAdmin,
-    );
-
-    const isActive = (href: string) => {
-        // Exact match for dashboard, prefix match for others
-        if (href === '/dashboard') return pathname === '/dashboard';
-        return pathname.startsWith(href);
-    };
-
-    return (
-        <>
-            {/* Mobile overlay */}
-            {mobileOpen && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.4)',
-                        zIndex: 40,
-                    }}
-                    onClick={closeMobile}
-                    aria-hidden="true"
-                />
-            )}
-
-            <aside
-                className={[
-                    'admin-sidebar',
-                    collapsed ? 'collapsed' : '',
-                    mobileOpen ? 'mobile-open' : '',
-                ].filter(Boolean).join(' ')}
-                aria-label="Admin navigation"
-            >
-                {/* Logo */}
-                <div className="sidebar-logo">
-                    <div className="sidebar-logo-icon" aria-hidden="true">
-                        IV
-                    </div>
-                    <span className="sidebar-logo-text">
-                        ID Verify Admin
-                    </span>
-                </div>
-
-                {/* Navigation */}
-                <nav className="sidebar-nav" aria-label="Main navigation">
-                    <div
-                        className="nav-section-label"
-                        aria-hidden={collapsed}
-                    >
-                        Navigation
-                    </div>
-
-                    {visibleItems.map((item) => {
-                        const active = isActive(item.href);
-                        return (
-                            <NavItemLink
-                                key={item.href}
-                                item={item}
-                                active={active}
-                                collapsed={collapsed}
-                                onClick={closeMobile}
-                            />
-                        );
-                    })}
-                </nav>
-
-                {/* Footer toggle */}
-                <div className="sidebar-footer">
-                    <button
-                        className="sidebar-toggle"
-                        onClick={toggle}
-                        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                        title={collapsed ? 'Expand' : 'Collapse'}
-                    >
-                        {collapsed ? <Icon.ChevronRight /> : (
-                            <>
-                                <Icon.ChevronLeft />
-                                <span style={{
-                                    fontSize: 12,
-                                    opacity: 1,
-                                    transition: 'opacity 150ms ease',
-                                }}>
-                                    Collapse
-                                </span>
-                            </>
-                        )}
-                    </button>
-                </div>
-            </aside>
-        </>
-    );
-}
-
 // ── Nav item link ─────────────────────────────────────────────────────────
 
+/**
+ * Single navigation item — renders as a Next.js Link with active state,
+ * icon, label, and a tooltip when the sidebar is collapsed.
+ */
 function NavItemLink({
     item,
     active,
@@ -194,12 +85,104 @@ function NavItemLink({
                     {item.label}
                 </span>
             </Link>
-
-            {/* Tooltip — only visible when collapsed and hovered */}
-            <NavTooltip
-                label={item.label}
-                visible={collapsed && hovered}
-            />
+            <NavTooltip label={item.label} visible={collapsed && hovered} />
         </div>
+    );
+}
+
+// ── Main component ────────────────────────────────────────────────────────
+
+/**
+ * Admin sidebar — floating glass panel with collapsible navigation.
+ * Hydrates collapse preference from localStorage on mount.
+ */
+export function AdminSidebar() {
+    const pathname    = usePathname();
+    const collapsed   = useSidebarStore((s) => s.collapsed);
+    const mobileOpen  = useSidebarStore((s) => s.mobileOpen);
+    const toggle      = useSidebarStore((s) => s.toggle);
+    const closeMobile = useSidebarStore((s) => s.closeMobile);
+    const admin       = useAdminAuthStore((s) => s.admin);
+
+    const isSuperAdmin = admin?.role === 'SUPER_ADMIN';
+
+    useEffect(() => {
+        hydrateSidebar();
+    }, []);
+
+    const visibleItems = NAV_ITEMS.filter(
+        (item) => !item.superAdminOnly || isSuperAdmin,
+    );
+
+    const isActive = (href: string) => {
+        if (href === '/dashboard') return pathname === '/dashboard';
+        return pathname.startsWith(href);
+    };
+
+    return (
+        <>
+            {/* Mobile overlay — dims content when sidebar slides in */}
+            {mobileOpen && (
+                <div
+                    style={{
+                        position:   'fixed',
+                        inset:      0,
+                        background: 'rgba(0, 0, 0, 0.60)',
+                        zIndex:     40,
+                        backdropFilter: 'blur(4px)',
+                    }}
+                    onClick={closeMobile}
+                    aria-hidden="true"
+                />
+            )}
+
+            <aside
+                className={[
+                    'admin-sidebar',
+                    collapsed   ? 'collapsed'    : '',
+                    mobileOpen  ? 'mobile-open'  : '',
+                ].filter(Boolean).join(' ')}
+                aria-label="Admin navigation"
+            >
+                {/* Logo */}
+                <div className="sidebar-logo">
+                    <div className="sidebar-logo-icon" aria-hidden="true">IV</div>
+                    <div className="sidebar-logo-text">
+                        <div className="logo-name">ID Verify</div>
+                        <div className="logo-role">Admin</div>
+                    </div>
+                </div>
+
+                {/* Navigation — no section labels per design spec */}
+                <nav className="sidebar-nav" aria-label="Main navigation">
+                    {visibleItems.map((item) => (
+                        <NavItemLink
+                            key={item.href}
+                            item={item}
+                            active={isActive(item.href)}
+                            collapsed={collapsed}
+                            onClick={closeMobile}
+                        />
+                    ))}
+                </nav>
+
+                {/* Footer collapse toggle */}
+                <div className="sidebar-footer">
+                    <button
+                        className="sidebar-toggle"
+                        onClick={toggle}
+                        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                        title={collapsed ? 'Expand' : 'Collapse'}
+                    >
+                        {collapsed ? <Icon.ChevronRight /> : (
+                            <>
+                                <Icon.ChevronLeft />
+                                <span style={{ fontSize: 12 }}>Collapse</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            </aside>
+        </>
     );
 }
