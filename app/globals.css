@@ -621,13 +621,17 @@ html, body {
 }
 
 .header-admin-info {
-  display:    flex;
-  align-items:center;
-  gap:        8px;
-  padding:    4px 10px;
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       4px 10px;
   border-radius: var(--radius);
-  cursor:     pointer;
-  transition: background 120ms ease;
+  cursor:        pointer;
+  transition:    background 120ms ease;
+  /* Reset <button> element defaults */
+  background:    none;
+  border:        none;
+  font-family:   var(--font-sans);
 }
 .header-admin-info:hover { background: var(--surface-raised); }
 
@@ -645,6 +649,57 @@ html, body {
   color:         var(--primary);
   flex-shrink:   0;
 }
+
+/* ─── User menu dropdown ─────────────────────────────────────────────────────── */
+
+.user-menu {
+  position:      absolute;
+  top:           calc(100% + 8px);
+  right:         0;
+  background:    var(--surface-overlay);
+  border:        1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow:    0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  min-width:     220px;
+  z-index:       100;
+  overflow:      hidden;
+}
+
+.user-menu-header {
+  padding:       12px 14px;
+  border-bottom: 1px solid var(--border);
+  background:    var(--surface-raised);
+}
+
+.user-menu-item {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  width:       100%;
+  padding:     0 14px;
+  height:      36px;
+  font-family: var(--font-sans);
+  font-size:   13px;
+  color:       var(--text-secondary);
+  background:  none;
+  border:      none;
+  cursor:      pointer;
+  text-align:  left;
+  transition:  background 100ms ease, color 100ms ease;
+}
+
+.user-menu-item:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color:      var(--text-primary);
+}
+
+.user-menu-item:disabled {
+  opacity: 0.5;
+  cursor:  not-allowed;
+}
+
+.user-menu-item.danger             { color: var(--error); }
+.user-menu-item.danger:hover:not(:disabled) { background: var(--error-muted); }
 
 /* ─── Main content area ──────────────────────────────────────────────────────── */
 
@@ -667,25 +722,43 @@ html, body {
 /* ─── Page header (inside content area) ─────────────────────────────────────── */
 
 .page-header {
-  display:       flex;
-  align-items:   center;
+  display:         flex;
+  align-items:     center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  flex-wrap:     wrap;
-  gap:           8px;
+  padding-bottom:  20px;
+  border-bottom:   1px solid var(--border);
+  margin-bottom:   24px;
+  flex-wrap:       wrap;
+  gap:             8px;
 }
 
 .page-title {
-  font-size:   18px;
-  font-weight: 600;
-  color:       var(--text-primary);
-  line-height: 1.3;
+  font-size:      20px;
+  font-weight:    700;
+  color:          var(--text-primary);
+  line-height:    1.3;
+  letter-spacing: -0.025em;
 }
 
 .page-subtitle {
   font-size:  13px;
   color:      var(--text-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  line-height:1.5;
+}
+
+/* Icon mark displayed to the left of the page title */
+.page-header-icon {
+  width:         36px;
+  height:        36px;
+  background:    var(--primary-muted);
+  border:        1px solid var(--primary-border);
+  border-radius: 8px;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  color:         var(--primary);
+  flex-shrink:   0;
 }
 
 /* ─── Stat cards ─────────────────────────────────────────────────────────────── */
@@ -818,6 +891,10 @@ html, body {
   .btn:active:not(:disabled) {
     transform: scale(0.98);
   }
+
+  .user-menu {
+    animation: fadeSlideUp 140ms ease both;
+  }
 }
 
 /* ─── Form error state ───────────────────────────────────────────────────────── */
@@ -872,7 +949,8 @@ html, body {
     display: flex !important;
   }
 
-  .header-admin-info .admin-avatar ~ div {
+  /* On mobile only show the avatar — hide name, email, chevron */
+  .header-admin-info .admin-avatar ~ * {
     display: none;
   }
 
