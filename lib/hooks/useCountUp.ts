@@ -1,69 +1,61 @@
-// useCountUp — animates a number from 0 to `target` over `duration` ms.
-// Uses requestAnimationFrame for smooth, jank-free animation.
-// Respects prefers-reduced-motion — returns target immediately if motion is off.
+// Animates a number from 0 to the target value over a given duration.
+// Used on stat cards so numbers count up on mount — gives the admin
+// immediate visual confirmation that data has loaded.
+// Respects prefers-reduced-motion — returns the final value instantly
+// when the user has requested reduced motion.
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-interface UseCountUpOptions {
-    target: number;
-    duration?: number;   // ms — default 800
-    decimals?: number;   // decimal places to display — default 0
-    enabled?: boolean;   // start animation — default true
-}
-
-/**
- * Animates a numeric value from 0 to `target` using rAF.
- * Returns the current display value as a number.
- */
-export function useCountUp({
-    target,
-    duration = 800,
-    decimals = 0,
-    enabled = true,
-}: UseCountUpOptions): number {
+export function useCountUp(
+    target: number,
+    duration: number = 800,
+): number {
     const [value, setValue] = useState(0);
-    const rafRef = useRef<number | null>(null);
-    const startRef = useRef<number | null>(null);
+    const rafRef = useRef<number>(0);
+    const startTimeRef = useRef<number>(0);
 
     useEffect(() => {
-        if (!enabled) return;
-
-        // Respect reduced-motion preference — skip animation entirely
+        // Respect reduced motion preference — no animation
         const prefersReduced =
             typeof window !== 'undefined' &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        if (prefersReduced) {
+        if (prefersReduced || target === 0) {
             setValue(target);
             return;
         }
 
-        startRef.current = null;
+        // Reset to 0 when target changes
+        setValue(0);
+        startTimeRef.current = 0;
 
-        const step = (timestamp: number) => {
-            if (startRef.current === null) startRef.current = timestamp;
+        const animate = (timestamp: number) => {
+            if (!startTimeRef.current) {
+                startTimeRef.current = timestamp;
+            }
 
-            const elapsed = timestamp - startRef.current;
+            const elapsed = timestamp - startTimeRef.current;
             const progress = Math.min(elapsed / duration, 1);
 
-            // Ease out cubic — fast start, smooth deceleration
+            // Ease-out cubic — fast start, slow finish
             const eased = 1 - Math.pow(1 - progress, 3);
-            const current = parseFloat((eased * target).toFixed(decimals));
 
-            setValue(current);
+            setValue(Math.floor(eased * target));
 
             if (progress < 1) {
-                rafRef.current = requestAnimationFrame(step);
+                rafRef.current = requestAnimationFrame(animate);
+            } else {
+                setValue(target);
             }
         };
 
-        rafRef.current = requestAnimationFrame(step);
+        rafRef.current = requestAnimationFrame(animate);
 
         return () => {
-            if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
-    }, [target, duration, decimals, enabled]);
+    }, [target, duration]);
 
     return value;
 }
