@@ -3,7 +3,7 @@
 /* ─── Tailwind v4 theme — registers DM Sans as the font-sans token ──────────── */
 
 @theme inline {
-  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans, 'DM Sans'), system-ui, sans-serif;
 }
 
 /* ─── Clean Light Design System ──────────────────────────────────────────────
@@ -46,7 +46,7 @@
   --glass-overlay-border: rgba(0, 0, 0, 0.10);
 
   /* ── Typography ── */
-  --font-sans:      'DM Sans', system-ui, sans-serif;
+  --font-sans:      var(--font-dm-sans, 'DM Sans'), system-ui, sans-serif;
   --text-primary:   rgba(12, 12, 20, 0.92);
   --text-secondary: rgba(12, 12, 20, 0.58);
   --text-muted:     rgba(12, 12, 20, 0.38);
