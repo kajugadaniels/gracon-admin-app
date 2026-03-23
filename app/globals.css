@@ -87,32 +87,123 @@ html, body {
 .text-lg   { font-size: 16px; line-height: 1.4; font-weight: 500; }
 .text-xl   { font-size: 20px; line-height: 1.3; font-weight: 600; }
 
-/* ─── Compact card row ───────────────────────────────────────────────────────── */
-/* The core data display unit — every list in the admin uses this */
+/* ─── Compact table rows ─────────────────────────────────────────────────────
+   Replace .card-row entirely. Rows are flat, borderless between themselves,
+   only a bottom divider. The table container holds the outer border.
+   This is the highest-density readable pattern for data tables.
+──────────────────────────────────────────────────────────────────────────────── */
 
-.card-row {
+.data-table {
+  width:         100%;
   background:    var(--surface);
   border:        1px solid var(--border);
   border-radius: var(--radius);
-  padding:       12px 16px;
-  transition:    background 120ms ease, border-color 120ms ease;
-  cursor:        pointer;
+  overflow:      hidden;
 }
 
-.card-row:hover {
-  background:    var(--surface-raised);
-  border-color:  var(--border-hover);
+.data-table-header {
+  display:          grid;
+  padding:          0 16px;
+  height:           34px;
+  align-items:      center;
+  background:       rgba(255, 255, 255, 0.03);
+  border-bottom:    1px solid var(--border);
 }
 
-.card-row:active {
-  background:    var(--surface-overlay);
+.data-table-header-cell {
+  font-size:      11px;
+  font-weight:    600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color:          var(--text-muted);
+  user-select:    none;
 }
 
-/* Card row grid — override columns per list */
-.card-row-grid {
-  display:     grid;
+/* Sortable column header */
+.data-table-header-cell.sortable {
+  cursor:  pointer;
+  display: flex;
   align-items: center;
-  gap:         12px;
+  gap: 4px;
+}
+.data-table-header-cell.sortable:hover {
+  color: var(--text-secondary);
+}
+.data-table-header-cell.sorted {
+  color: var(--primary);
+}
+
+.data-row {
+  display:        grid;
+  padding:        0 16px;
+  height:         40px;
+  align-items:    center;
+  border-bottom:  1px solid var(--border);
+  cursor:         pointer;
+  transition:     background 100ms ease;
+}
+
+.data-row:last-child {
+  border-bottom: none;
+}
+
+.data-row:hover {
+  background: var(--surface-raised);
+}
+
+.data-row.selected {
+  background: var(--primary-muted);
+}
+
+/* Non-clickable row — for audit/event logs */
+.data-row.static {
+  cursor: default;
+}
+.data-row.static:hover {
+  background: transparent;
+}
+
+.data-cell {
+  font-size:   13px;
+  color:       var(--text-primary);
+  overflow:    hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width:   0;
+}
+
+.data-cell.secondary {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.data-cell.muted {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Two-line cell — name above email */
+.data-cell-stack {
+  display:        flex;
+  flex-direction: column;
+  justify-content:center;
+  gap:            1px;
+  overflow:       hidden;
+}
+.data-cell-stack .primary {
+  font-size:     13px;
+  color:         var(--text-primary);
+  font-weight:   500;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+.data-cell-stack .sub {
+  font-size:     11px;
+  color:         var(--text-muted);
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
 }
 
 /* ─── Status badges ──────────────────────────────────────────────────────────── */
