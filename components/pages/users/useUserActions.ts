@@ -21,13 +21,14 @@ export type ModalType =
     | null;
 
 export function useUserActions(
-    user: UserDetail,
+    user: UserDetail | null,
     onRefresh: () => void,
 ) {
     const [modal, setModal] = useState<ModalType>(null);
     const [reason, setReason] = useState('');
     const [loading, setLoading] = useState(false);
     const [decryptedNid, setDecryptedNid] = useState<string | null>(null);
+    const userId = user?.userId ?? null;
 
     const closeModal = useCallback(() => {
         setModal(null);
@@ -35,76 +36,82 @@ export function useUserActions(
     }, []);
 
     const handleDeactivate = useCallback(async () => {
+        if (!userId) return;
         setLoading(true);
         try {
-            await updateUserStatusApi(user.userId, false, reason);
+            await updateUserStatusApi(userId, false, reason);
             toast.success('Account deactivated. All sessions revoked.');
             closeModal();
             onRefresh();
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to deactivate.');
         } finally { setLoading(false); }
-    }, [user.userId, reason, closeModal, onRefresh]);
+    }, [userId, reason, closeModal, onRefresh]);
 
     const handleReactivate = useCallback(async () => {
+        if (!userId) return;
         setLoading(true);
         try {
-            await updateUserStatusApi(user.userId, true, reason);
+            await updateUserStatusApi(userId, true, reason);
             toast.success('Account reactivated.');
             closeModal();
             onRefresh();
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to reactivate.');
         } finally { setLoading(false); }
-    }, [user.userId, reason, closeModal, onRefresh]);
+    }, [userId, reason, closeModal, onRefresh]);
 
     const handleRevokeSessions = useCallback(async () => {
+        if (!userId) return;
         setLoading(true);
         try {
-            const res = await revokeSessionsApi(user.userId);
+            const res = await revokeSessionsApi(userId);
             toast.success(res.data.message);
             closeModal();
             onRefresh();
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to revoke sessions.');
         } finally { setLoading(false); }
-    }, [user.userId, closeModal, onRefresh]);
+    }, [userId, closeModal, onRefresh]);
 
     const handleVerifyId = useCallback(async () => {
+        if (!userId) return;
         setLoading(true);
         try {
-            await updateIdVerificationApi(user.userId, true, reason);
+            await updateIdVerificationApi(userId, true, reason);
             toast.success('User manually marked as ID-verified.');
             closeModal();
             onRefresh();
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to update ID status.');
         } finally { setLoading(false); }
-    }, [user.userId, reason, closeModal, onRefresh]);
+    }, [userId, reason, closeModal, onRefresh]);
 
     const handleUnverifyId = useCallback(async () => {
+        if (!userId) return;
         setLoading(true);
         try {
-            await updateIdVerificationApi(user.userId, false, reason);
+            await updateIdVerificationApi(userId, false, reason);
             toast.success('ID verification revoked.');
             closeModal();
             onRefresh();
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to revoke ID status.');
         } finally { setLoading(false); }
-    }, [user.userId, reason, closeModal, onRefresh]);
+    }, [userId, reason, closeModal, onRefresh]);
 
     const handleDecryptNid = useCallback(async () => {
+        if (!userId) return;
         setLoading(true);
         try {
-            const res = await decryptNidApi(user.userId);
+            const res = await decryptNidApi(userId);
             setDecryptedNid(res.data.nid);
             toast.success('NID decrypted. Access has been logged.');
         } catch (err: any) {
             toast.error(err?.response?.data?.message ?? 'Failed to decrypt NID.');
             closeModal();
         } finally { setLoading(false); }
-    }, [user.userId, closeModal]);
+    }, [userId, closeModal]);
 
     return {
         modal, setModal,
