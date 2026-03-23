@@ -1,22 +1,17 @@
-// UserDetailClient — the full user detail page assembled.
-// Two-column layout: left has profile + identity, right has
-// actions panel + all activity sections stacked.
-// Re-fetches user on every successful action — never shows stale state.
-// Back button uses router.back() — preserves filter state on the list.
+// UserDetailClient — user detail page with sticky action bar + tabs.
+// Sticky bar stays visible at all times — actions never require scrolling.
+// Tabs divide the content into four focused views.
+// Re-fetches the full user after every successful action.
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/shell/PageHeader';
 import { Button, Spinner } from '@/components/ui';
-import {
-    UserDetailCard,
-    UserActionsPanel,
-    VerificationHistory,
-    SessionList,
-    SecurityEventTimeline,
-    AuditHistory,
-} from '@/components/pages/users';
+import { StickyActionBar } from './StickyActionBar';
+import { UserTabs } from './UserTabs';
+import { UserActionModals } from './UserActionModals';
+import { useUserActions } from './useUserActions';
 import { getUserApi, type UserDetail } from '@/api/users/get-user.api';
 
 interface UserDetailClientProps {
@@ -58,6 +53,9 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
         fetchUser();
     }, [fetchUser]);
 
+    // All action state lives here — passed down to bar + modals
+    const actions = useUserActions(user!, fetchUser);
+
     if (loading) {
         return <Spinner fullPage label="Loading user profile…" />;
     }
@@ -75,12 +73,10 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
         );
     }
 
-    const fullName = `${user.firstName} ${user.lastName}`;
-
     return (
         <>
             <PageHeader
-                title={fullName}
+                title={`${user.firstName} ${user.lastName}`}
                 subtitle={user.email}
                 action={
                     <Button
@@ -94,38 +90,35 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
                 }
             />
 
-            {/* Two-column layout */}
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)',
-                    gap: 16,
-                    alignItems: 'start',
+            {/* Sticky action bar — always visible */}
+            <StickyActionBar
+                user={user}
+                onOpen={actions.setModal}
+            />
+
+            {/* Tabbed content */}
+            <UserTabs user={user} />
+
+            {/* All modals rendered at page level */}
+            <UserActionModals
+                user={user}
+                modal={actions.modal}
+                reason={actions.reason}
+                loading={actions.loading}
+                decryptedNid={actions.decryptedNid}
+                onReasonChange={actions.setReason}
+                onClose={actions.closeModal}
+                onCloseDecrypt={() => {
+                    actions.closeModal();
+                    actions.setDecryptedNid(null);
                 }}
-            >
-                {/* Left column — profile + identity */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                    <UserDetailCard user={user} />
-                </div>
-
-                {/* Right column — actions + activity */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <UserActionsPanel user={user} onRefresh={fetchUser} />
-                    <VerificationHistory verifications={user.verifications} />
-                    <SessionList sessions={user.sessions} />
-                    <SecurityEventTimeline userId={user.userId} events={user.securityEvents} />
-                    <AuditHistory userId={user.userId} history={user.auditHistory} />
-                </div>
-            </div>
-
-            {/* Responsive: stack columns on tablet and mobile */}
-            <style>{`
-        @media (max-width: 900px) {
-          .user-detail-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
+                onDeactivate={actions.handleDeactivate}
+                onReactivate={actions.handleReactivate}
+                onRevoke={actions.handleRevokeSessions}
+                onVerifyId={actions.handleVerifyId}
+                onUnverifyId={actions.handleUnverifyId}
+                onDecryptNid={actions.handleDecryptNid}
+            />
         </>
     );
 }
