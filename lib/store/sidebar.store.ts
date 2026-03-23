@@ -16,7 +16,11 @@ const STORAGE_KEY = 'adm_sidebar_collapsed';
 
 function readInitialState(): boolean {
     if (typeof window === 'undefined') return false;
-    return localStorage.getItem(STORAGE_KEY) === 'true';
+    const stored = localStorage.getItem(STORAGE_KEY);
+    // User has an explicit preference — always respect it
+    if (stored !== null) return stored === 'true';
+    // No saved preference: collapse by default on tablet (< 1024px)
+    return window.innerWidth < 1024;
 }
 
 export const useSidebarStore = create<SidebarState>((set, get) => ({
