@@ -38,14 +38,13 @@ export function SecurityAlert({
     rateLimitHits,
     threshold = 50,
 }: SecurityAlertProps) {
-    // Do not render if below threshold
-    if (failedLogins < threshold && rateLimitHits < threshold) return null;
-
-    const isHighRisk = failedLogins >= threshold * 2 || rateLimitHits >= threshold * 2;
+    // Always render — threshold determines severity styling only
+    const isHighRisk = failedLogins >= threshold || rateLimitHits >= threshold;
+    const hasActivity = failedLogins > 0 || rateLimitHits > 0;
 
     return (
         <div
-            role="alert"
+            role="status"
             aria-live="polite"
             style={{
                 display: 'flex',
@@ -54,8 +53,17 @@ export function SecurityAlert({
                 padding: '12px 16px',
                 marginBottom: 16,
                 borderRadius: 'var(--radius)',
-                background: isHighRisk ? '#FEF2F2' : '#FFFBEB',
-                border: `1px solid ${isHighRisk ? '#FECACA' : '#FDE68A'}`,
+                background: isHighRisk
+                    ? '#FEF2F2'
+                    : hasActivity
+                        ? '#FFFBEB'
+                        : '#F0FDF4',
+                border: `1px solid ${isHighRisk
+                        ? '#FECACA'
+                        : hasActivity
+                            ? '#FDE68A'
+                            : '#BBF7D0'
+                    }`,
             }}
         >
             {/* Icon */}
@@ -76,56 +84,70 @@ export function SecurityAlert({
                     style={{
                         fontSize: 13,
                         fontWeight: 600,
-                        color: isHighRisk ? '#991B1B' : '#92400E',
+                        color: isHighRisk
+                            ? '#991B1B'
+                            : hasActivity
+                                ? '#92400E'
+                                : '#166534',
                         marginBottom: 2,
                     }}
                 >
                     {isHighRisk
                         ? 'High-risk activity detected'
-                        : 'Elevated security activity'}
+                        : hasActivity
+                            ? 'Security activity in the last 24h'
+                            : 'No security alerts'}
                 </div>
                 <div
                     style={{
                         fontSize: 12,
-                        color: isHighRisk ? '#B91C1C' : '#B45309',
+                        color: isHighRisk ? '#B91C1C' : hasActivity ? '#B45309' : '#15803D',
                         lineHeight: 1.5,
                     }}
                 >
-                    {failedLogins >= threshold && (
-                        <span>
-                            <strong>{failedLogins.toLocaleString()}</strong> failed login{failedLogins !== 1 ? 's' : ''} in the last 24 hours
-                        </span>
-                    )}
-                    {failedLogins >= threshold && rateLimitHits >= threshold && (
-                        <span style={{ margin: '0 6px', opacity: 0.5 }}>·</span>
-                    )}
-                    {rateLimitHits >= threshold && (
-                        <span>
-                            <strong>{rateLimitHits.toLocaleString()}</strong> rate limit hit{rateLimitHits !== 1 ? 's' : ''}
-                        </span>
+                    {hasActivity ? (
+                        <>
+                            {failedLogins > 0 && (
+                                <span>
+                                    <strong>{failedLogins.toLocaleString()}</strong> failed login
+                                    {failedLogins !== 1 ? 's' : ''}
+                                </span>
+                            )}
+                            {failedLogins > 0 && rateLimitHits > 0 && (
+                                <span style={{ margin: '0 6px', opacity: 0.5 }}>·</span>
+                            )}
+                            {rateLimitHits > 0 && (
+                                <span>
+                                    <strong>{rateLimitHits.toLocaleString()}</strong> rate limit
+                                    hit{rateLimitHits !== 1 ? 's' : ''}
+                                </span>
+                            )}
+                        </>
+                    ) : (
+                        'All clear — no failed logins or rate limit hits in the last 24 hours.'
                     )}
                 </div>
             </div>
 
-            {/* CTA — goes to security events filtered to LOGIN_FAILED */}
-            <Link
-                href="/security-events?eventType=LOGIN_FAILED"
-                style={{ textDecoration: 'none', flexShrink: 0 }}
-            >
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    icon={<ArrowRightIcon />}
-                    style={{
-                        background: isHighRisk ? 'white' : 'white',
-                        borderColor: isHighRisk ? '#FECACA' : '#FDE68A',
-                        color: isHighRisk ? '#991B1B' : '#92400E',
-                        gap: 6,
-                    }}
+            {hasActivity && (
+                <Link
+                    href="/security-events?eventType=LOGIN_FAILED"
+                    style={{ textDecoration: 'none', flexShrink: 0 }}
                 >
-                    Investigate
-                </Button>
-            </Link>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        icon={<ArrowRightIcon />}
+                        style={{
+                            background: 'white',
+                            borderColor: isHighRisk ? '#FECACA' : '#FDE68A',
+                            color: isHighRisk ? '#991B1B' : '#92400E',
+                        }}
+                    >
+                        Investigate
+                    </Button>
+                </Link>
+            )}
         </div>
     );
 }
