@@ -1157,3 +1157,10 @@ body::before {
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
