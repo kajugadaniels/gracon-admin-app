@@ -54,69 +54,80 @@ export function AuditHistory({ userId, history }: AuditHistoryProps) {
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {history.map((item) => (
-                        <div
-                            key={item.id}
-                            style={{
-                                background: 'var(--glass-interactive)',
-                                border: '1px solid var(--glass-interactive-border)',
-                                borderRadius: 'var(--radius-md)',
-                                padding: '10px 12px',
-                            }}
-                        >
-                            {/* Top row */}
+                    {history.map((item) => {
+                        const adminName =
+                            typeof item.adminName === 'string' && item.adminName.trim()
+                                ? item.adminName
+                                : 'Unknown admin';
+                        const reasonText =
+                            typeof item.metadata?.reason === 'string'
+                                ? item.metadata.reason
+                                : null;
+
+                        return (
                             <div
+                                key={item.id}
                                 style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    marginBottom: 4,
-                                    flexWrap: 'wrap',
+                                    background: 'var(--glass-interactive)',
+                                    border: '1px solid var(--glass-interactive-border)',
+                                    borderRadius: 'var(--radius-md)',
+                                    padding: '10px 12px',
                                 }}
                             >
-                                <Badge variant={ADMIN_ACTION_VARIANT[item.action] ?? 'neutral'}>
-                                    {ACTION_LABELS[item.action] ?? item.action}
-                                </Badge>
-                                <span
-                                    style={{
-                                        marginLeft: 'auto',
-                                        fontSize: 11,
-                                        color: 'var(--text-muted)',
-                                        fontVariantNumeric: 'tabular-nums',
-                                    }}
-                                >
-                                    {formatDateTime(item.createdAt)}
-                                </span>
-                            </div>
-
-                            {/* Admin who performed + IP */}
-                            <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
-                                By <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-                                    {item.adminName}
-                                </span>
-                                {item.ipAddress && (
-                                    <span style={{ color: 'var(--text-muted)' }}>
-                                        {' '}from {item.ipAddress}
-                                    </span>
-                                )}
-                            </div>
-
-                            {/* Reason from metadata */}
-                            {item.metadata?.reason && typeof item.metadata.reason === 'string' && (
+                                {/* Top row */}
                                 <div
                                     style={{
-                                        marginTop: 4,
-                                        fontSize: 11,
-                                        color: 'var(--text-muted)',
-                                        fontStyle: 'italic',
-                                        lineHeight: 1.5,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        marginBottom: 4,
+                                        flexWrap: 'wrap',
                                     }}
                                 >
-                                    "{item.metadata.reason}"
+                                    <Badge variant={ADMIN_ACTION_VARIANT[item.action] ?? 'neutral'}>
+                                        {ACTION_LABELS[item.action] ?? item.action}
+                                    </Badge>
+                                    <span
+                                        style={{
+                                            marginLeft: 'auto',
+                                            fontSize: 11,
+                                            color: 'var(--text-muted)',
+                                            fontVariantNumeric: 'tabular-nums',
+                                        }}
+                                    >
+                                        {formatDateTime(item.createdAt)}
+                                    </span>
                                 </div>
-                            )}
-                        </div>
-                    ))}
+
+                                {/* Admin who performed + IP */}
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                                    By <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                                        {adminName}
+                                    </span>
+                                    {item.ipAddress && (
+                                        <span style={{ color: 'var(--text-muted)' }}>
+                                            {' '}from {item.ipAddress}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Reason from metadata */}
+                                {reasonText && (
+                                    <div
+                                        style={{
+                                            marginTop: 4,
+                                            fontSize: 11,
+                                            color: 'var(--text-muted)',
+                                            fontStyle: 'italic',
+                                            lineHeight: 1.5,
+                                        }}
+                                    >
+                                        "{reasonText}"
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
 
