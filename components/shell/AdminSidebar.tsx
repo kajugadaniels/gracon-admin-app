@@ -40,7 +40,7 @@ function NavTooltip({ label, visible }: { label: string; visible: boolean }) {
                 whiteSpace:  'nowrap',
                 pointerEvents:'none',
                 zIndex:      200,
-                boxShadow:   '0 8px 24px rgba(0,0,0,0.40)',
+                boxShadow:   '0 8px 24px rgba(0,0,0,0.10)',
                 backdropFilter: 'blur(var(--glass-overlay-blur))',
             }}
         >
@@ -127,7 +127,7 @@ export function AdminSidebar() {
                     style={{
                         position:   'fixed',
                         inset:      0,
-                        background: 'rgba(0, 0, 0, 0.60)',
+                        background: 'rgba(0, 0, 0, 0.40)',
                         zIndex:     40,
                         backdropFilter: 'blur(4px)',
                     }}
