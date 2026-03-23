@@ -1,3 +1,10 @@
 export { UserFilters } from './UserFilters';
 export type { UserFilterState } from './UserFilters';
 export { UserTable } from './UserTable';
+export { UsersClient } from './UsersClient';
+export { UserDetailCard } from './UserDetailCard';
+export { UserActionsPanel } from './UserActionsPanel';
+export { VerificationHistory } from './VerificationHistory';
+export { SessionList } from './SessionList';
+export { SecurityEventTimeline } from './SecurityEventTimeline';
+export { AuditHistory } from './AuditHistory';
