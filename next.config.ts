@@ -1,8 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  reactCompiler: true,
+// next.config.ts
+const nextConfig = {
+  experimental: {
+    optimizePackageImports: ['recharts'],
+  },
 };
 
 export default nextConfig;
