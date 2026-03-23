@@ -3,6 +3,7 @@
 // SetPasswordForm — accepts an admin invite token and sets the initial password.
 // States: validating → valid (form) | invalid (error panel) | success.
 // Token validated on mount via validateInviteApi before the form is shown.
+// Uses the same glass-overlay card material as LoginForm.
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -31,7 +32,7 @@ const schema = z
 type FormFields = z.infer<typeof schema>;
 type PageState = 'validating' | 'valid' | 'invalid' | 'success';
 
-// ── Inline icon ───────────────────────────────────────────────────────────
+// ── Icon ──────────────────────────────────────────────────────────────────
 
 const LockIcon = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -43,15 +44,16 @@ const LockIcon = () => (
 
 // ── Component ─────────────────────────────────────────────────────────────
 
+/** Set-password form — shown after an admin accepts their invite link. */
 export function SetPasswordForm() {
-    const params = useSearchParams();
+    const params  = useSearchParams();
     const adminId = params.get('adminId') ?? '';
-    const token = params.get('token') ?? '';
+    const token   = params.get('token') ?? '';
 
-    const [state, setState] = useState<PageState>('validating');
+    const [state,     setState]     = useState<PageState>('validating');
     const [adminName, setAdminName] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [errorMsg,  setErrorMsg]  = useState('');
+    const [loading,   setLoading]   = useState(false);
 
     const {
         register,
@@ -112,17 +114,15 @@ export function SetPasswordForm() {
 
     if (state === 'invalid') {
         return (
-            <div style={{ width: '100%', maxWidth: 400, padding: '0 16px', textAlign: 'center' }}>
-                <div
-                    style={{
-                        background: 'var(--error-muted)',
-                        border: '1px solid var(--error-border)',
-                        borderRadius: 'var(--radius)',
-                        padding: '24px',
-                        marginBottom: 16,
-                    }}
-                >
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--error)', marginBottom: 8 }}>
+            <div style={{ width: '100%', maxWidth: 380, padding: '0 16px', textAlign: 'center' }}>
+                <div style={{
+                    background:   'var(--error-glass)',
+                    border:       '1px solid var(--error-border)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding:      '28px',
+                    marginBottom: 16,
+                }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--error-text)', marginBottom: 8 }}>
                         Invalid invite link
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -140,17 +140,15 @@ export function SetPasswordForm() {
 
     if (state === 'success') {
         return (
-            <div style={{ width: '100%', maxWidth: 400, padding: '0 16px', textAlign: 'center' }}>
-                <div
-                    style={{
-                        background: 'var(--success-muted)',
-                        border: '1px solid var(--success-border)',
-                        borderRadius: 'var(--radius)',
-                        padding: '24px',
-                        marginBottom: 16,
-                    }}
-                >
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--success)', marginBottom: 8 }}>
+            <div style={{ width: '100%', maxWidth: 380, padding: '0 16px', textAlign: 'center' }}>
+                <div style={{
+                    background:   'var(--success-glass)',
+                    border:       '1px solid var(--success-border)',
+                    borderRadius: 'var(--radius-xl)',
+                    padding:      '28px',
+                    marginBottom: 16,
+                }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--success-text)', marginBottom: 8 }}>
                         Account activated
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -164,23 +162,23 @@ export function SetPasswordForm() {
         );
     }
 
-    // ── Valid — show form ─────────────────────────────────────────
+    // ── Valid — form ──────────────────────────────────────────────
 
     return (
-        <div style={{ width: '100%', maxWidth: 400, padding: '0 16px' }}>
-            <div style={{ marginBottom: 24 }}>
+        <div style={{ width: '100%', maxWidth: 380, padding: '0 16px' }}>
+            <div style={{ marginBottom: 28, textAlign: 'center' }}>
                 <div style={{
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: 'var(--text-primary)',
-                    marginBottom: 4,
-                    letterSpacing: '-0.01em',
+                    fontSize:      22,
+                    fontWeight:    700,
+                    color:         'var(--text-primary)',
+                    marginBottom:  4,
+                    letterSpacing: '-0.02em',
                 }}>
                     Set your password
                 </div>
                 {adminName && (
                     <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                        Welcome, {adminName}. Choose a strong password for your admin account.
+                        Welcome, {adminName}. Choose a strong password.
                     </div>
                 )}
             </div>
@@ -189,22 +187,17 @@ export function SetPasswordForm() {
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
-                    style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
                 >
                     <div>
                         <label style={{
-                            display: 'block',
-                            fontSize: 12,
-                            fontWeight: 500,
-                            color: 'var(--text-secondary)',
-                            marginBottom: 6,
+                            display: 'block', fontSize: 12, fontWeight: 500,
+                            color: 'var(--text-secondary)', marginBottom: 7,
                         }}>
                             New password
                         </label>
                         <div className="input-icon-wrap">
-                            <span className="input-icon-left">
-                                <LockIcon />
-                            </span>
+                            <span className="input-icon-left"><LockIcon /></span>
                             <input
                                 type="password"
                                 autoComplete="new-password"
@@ -214,7 +207,7 @@ export function SetPasswordForm() {
                             />
                         </div>
                         {errors.password && (
-                            <p style={{ fontSize: 12, color: 'var(--error)', marginTop: 4 }}>
+                            <p style={{ fontSize: 12, color: 'var(--error-text)', marginTop: 5 }}>
                                 {errors.password.message}
                             </p>
                         )}
@@ -222,18 +215,13 @@ export function SetPasswordForm() {
 
                     <div>
                         <label style={{
-                            display: 'block',
-                            fontSize: 12,
-                            fontWeight: 500,
-                            color: 'var(--text-secondary)',
-                            marginBottom: 6,
+                            display: 'block', fontSize: 12, fontWeight: 500,
+                            color: 'var(--text-secondary)', marginBottom: 7,
                         }}>
                             Confirm password
                         </label>
                         <div className="input-icon-wrap">
-                            <span className="input-icon-left">
-                                <LockIcon />
-                            </span>
+                            <span className="input-icon-left"><LockIcon /></span>
                             <input
                                 type="password"
                                 autoComplete="new-password"
@@ -243,7 +231,7 @@ export function SetPasswordForm() {
                             />
                         </div>
                         {errors.confirm && (
-                            <p style={{ fontSize: 12, color: 'var(--error)', marginTop: 4 }}>
+                            <p style={{ fontSize: 12, color: 'var(--error-text)', marginTop: 5 }}>
                                 {errors.confirm.message}
                             </p>
                         )}
@@ -255,17 +243,14 @@ export function SetPasswordForm() {
                         className="btn btn-primary"
                         style={{ width: '100%', marginTop: 4 }}
                     >
-                        {loading ? 'Setting password…' : 'Set password and activate account'}
+                        {loading ? 'Setting password…' : 'Activate account'}
                     </button>
                 </form>
             </div>
 
             <p style={{
-                textAlign: 'center',
-                fontSize: 11,
-                color: 'var(--text-muted)',
-                marginTop: 16,
-                lineHeight: 1.5,
+                textAlign: 'center', fontSize: 11,
+                color: 'var(--text-muted)', marginTop: 18, lineHeight: 1.6,
             }}>
                 This link is single-use and expires after 48 hours.
             </p>
