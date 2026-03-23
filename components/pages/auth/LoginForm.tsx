@@ -95,7 +95,7 @@ export function LoginForm() {
                     fontWeight:      700,
                     color:           'var(--primary-text)',
                     margin:          '0 auto 20px',
-                    boxShadow:       '0 0 32px var(--primary-glow), 0 8px 24px rgba(0,0,0,0.40)',
+                    boxShadow:       '0 0 24px var(--primary-glow), 0 4px 16px rgba(0,0,0,0.08)',
                 }}>
                     A
                 </div>
