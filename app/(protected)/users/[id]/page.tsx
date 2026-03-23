@@ -3,10 +3,12 @@ import { UserDetailClient } from '@/components/pages/users/UserDetailClient';
 
 export const metadata: Metadata = { title: 'User detail' };
 
-export default function UserDetailPage({
+export default async function UserDetailPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
-    return <UserDetailClient userId={params.id} />;
+    const { id } = await params;
+
+    return <UserDetailClient userId={id} />;
 }
