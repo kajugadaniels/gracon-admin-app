@@ -118,7 +118,7 @@ export function AdminHeader({ breadcrumb = [] }: AdminHeaderProps) {
                         borderRadius: 4,
                         background: admin?.role === 'SUPER_ADMIN'
                             ? 'var(--primary-muted)'
-                            : 'rgba(255,255,255,0.06)',
+                            : 'var(--surface-raised)',
                         color: admin?.role === 'SUPER_ADMIN'
                             ? 'var(--primary)'
                             : 'var(--text-muted)',
