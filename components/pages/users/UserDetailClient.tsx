@@ -54,7 +54,7 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
     }, [fetchUser]);
 
     // All action state lives here — passed down to bar + modals
-    const actions = useUserActions(user!, fetchUser);
+    const actions = useUserActions(user, fetchUser);
 
     if (loading) {
         return <Spinner fullPage label="Loading user profile…" />;
