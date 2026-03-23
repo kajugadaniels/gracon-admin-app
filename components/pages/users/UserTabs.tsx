@@ -10,8 +10,8 @@ import type { UserDetail } from '@/api/users/get-user.api';
 import { UserDetailCard } from './UserDetailCard';
 import { VerificationHistory } from './VerificationHistory';
 import { SessionList } from './SessionList';
-import { SecurityEventTimeline } from './SecurityEventTimeline';
 import { AuditHistory } from './AuditHistory';
+import { SecurityEventTimeline } from './SecurityEventTimeline';
 
 type Tab = 'profile' | 'verifications' | 'sessions' | 'activity';
 
@@ -26,6 +26,12 @@ interface UserTabsProps {
     user: UserDetail;
 }
 
+/**
+ * Renders the tabbed sections for the user detail view.
+ *
+ * @param user Full user detail payload for the active page.
+ * @returns The tab navigation and the active detail panel.
+ */
 export function UserTabs({ user }: UserTabsProps) {
     const [active, setActive] = useState<Tab>('profile');
 
@@ -52,6 +58,7 @@ export function UserTabs({ user }: UserTabsProps) {
                     return (
                         <button
                             key={tab.id}
+                            id={`tab-${tab.id}`}
                             role="tab"
                             aria-selected={isActive}
                             aria-controls={`tabpanel-${tab.id}`}
@@ -141,7 +148,7 @@ export function UserTabs({ user }: UserTabsProps) {
             >
                 {active === 'activity' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        <SecurityEventTimeline events={user.securityEvents} />
+                        <SecurityEventTimeline userId={user.userId} events={user.securityEvents} />
                         <AuditHistory userId={user.userId} history={user.auditHistory} />
                     </div>
                 )}
