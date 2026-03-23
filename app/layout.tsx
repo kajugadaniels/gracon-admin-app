@@ -1,14 +1,6 @@
 import type { Metadata } from 'next';
-import { DM_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
-
-const dmSans = DM_Sans({
-    subsets: ['latin'],
-    weight: ['300', '400', '500', '600', '700'],
-    variable: '--font-dm-sans',
-    display: 'swap',
-});
 
 export const metadata: Metadata = {
     title: {
@@ -25,7 +17,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" className={dmSans.variable}>
+        <html lang="en">
             <body className="font-sans antialiased">
                 {children}
                 <Toaster
@@ -38,7 +30,7 @@ export default function RootLayout({
                             color:        'var(--text-primary)',
                             fontSize:     '13px',
                             borderRadius: '12px',
-                            boxShadow:    '0 16px 48px rgba(0,0,0,0.50)',
+                            boxShadow:    '0 8px 32px rgba(0,0,0,0.10)',
                             backdropFilter: 'blur(48px)',
                         },
                     }}
