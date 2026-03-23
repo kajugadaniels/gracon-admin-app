@@ -82,9 +82,31 @@ function formatDateTime(iso: string | null): string {
     });
 }
 
+function getRenderableImageSrc(imageUrl: string | null): string | null {
+    if (!imageUrl) return null;
+
+    if (imageUrl.startsWith('/')) {
+        return imageUrl;
+    }
+
+    try {
+        const parsedUrl = new URL(imageUrl);
+
+        if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+            return imageUrl;
+        }
+    } catch {
+        // The admin API can still return a raw storage key here.
+        // Falling back to initials is safer than crashing the detail page.
+    }
+
+    return null;
+}
+
 export function UserDetailCard({ user }: UserDetailCardProps) {
     const initials =
         `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '?';
+    const profileImageSrc = getRenderableImageSrc(user.imageUrl);
 
     return (
         <div className="glass-card" style={{ borderRadius: 'var(--radius-lg)', padding: '20px' }}>
@@ -102,9 +124,9 @@ export function UserDetailCard({ user }: UserDetailCardProps) {
             >
                 {/* Avatar */}
                 <div style={{ position: 'relative', flexShrink: 0 }}>
-                    {user.imageUrl ? (
+                    {profileImageSrc ? (
                         <Image
-                            src={user.imageUrl}
+                            src={profileImageSrc}
                             alt={`${user.firstName} ${user.lastName}`}
                             width={56}
                             height={56}
