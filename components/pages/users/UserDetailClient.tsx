@@ -113,7 +113,7 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
                     <UserActionsPanel user={user} onRefresh={fetchUser} />
                     <VerificationHistory verifications={user.verifications} />
                     <SessionList sessions={user.sessions} />
-                    <SecurityEventTimeline events={user.securityEvents} />
+                    <SecurityEventTimeline userId={user.userId} events={user.securityEvents} />
                     <AuditHistory userId={user.userId} history={user.auditHistory} />
                 </div>
             </div>
