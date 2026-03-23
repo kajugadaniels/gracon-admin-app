@@ -1,8 +1,8 @@
 'use client';
 
 // LoginForm — admin sign-in form.
-// Email + password with inline icons. Submits to adminLoginApi and stores tokens.
-// On success redirects to ?next= param or /dashboard.
+// Renders against the void background — the .auth-panel card uses glass-overlay material.
+// Email + password with inline icons. On success stores tokens and redirects.
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -13,13 +13,13 @@ import { adminLoginApi } from '@/api/auth/admin-login.api';
 import { useAdminAuthStore } from '@/lib/store/admin-auth.store';
 
 const schema = z.object({
-    email: z.string().email('Invalid email address'),
+    email:    z.string().email('Invalid email address'),
     password: z.string().min(1, 'Password is required'),
 });
 
 type FormFields = z.infer<typeof schema>;
 
-// ── Inline icons ──────────────────────────────────────────────────────────
+// ── Icons ──────────────────────────────────────────────────────────────────
 
 const EnvelopeIcon = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
@@ -47,8 +47,9 @@ const ArrowRightIcon = () => (
 
 // ── Component ─────────────────────────────────────────────────────────────
 
+/** Admin login form — floats in the void, glass-overlay card material. */
 export function LoginForm() {
-    const router = useRouter();
+    const router    = useRouter();
     const setTokens = useAdminAuthStore((s) => s.setTokens);
     const [loading, setLoading] = useState(false);
 
@@ -63,9 +64,7 @@ export function LoginForm() {
         try {
             const res = await adminLoginApi(values);
             const { accessToken, refreshToken, admin } = res.data.data;
-
             setTokens(accessToken, refreshToken, admin);
-
             const next = new URLSearchParams(window.location.search).get('next');
             router.replace(next ?? '/dashboard');
         } catch (err: unknown) {
@@ -79,37 +78,34 @@ export function LoginForm() {
     };
 
     return (
-        <div style={{ width: '100%', maxWidth: 400, padding: '0 16px' }}>
+        <div style={{ width: '100%', maxWidth: 380, padding: '0 16px' }}>
 
-            {/* Logo mark */}
-            <div style={{ marginBottom: 28, textAlign: 'center' }}>
-                <div
-                    style={{
-                        width: 48,
-                        height: 48,
-                        background: 'var(--primary)',
-                        borderRadius: 12,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 20,
-                        fontWeight: 700,
-                        color: '#fff',
-                        margin: '0 auto 16px',
-                        boxShadow: '0 8px 24px rgba(91, 35, 255, 0.28)',
-                    }}
-                >
+            {/* Logo mark — floats above the card with a violet glow */}
+            <div style={{ marginBottom: 32, textAlign: 'center' }}>
+                <div style={{
+                    width:           48,
+                    height:          48,
+                    background:      'var(--primary-glass)',
+                    border:          '1px solid var(--primary-border)',
+                    borderRadius:    12,
+                    display:         'flex',
+                    alignItems:      'center',
+                    justifyContent:  'center',
+                    fontSize:        20,
+                    fontWeight:      700,
+                    color:           'var(--primary-text)',
+                    margin:          '0 auto 20px',
+                    boxShadow:       '0 0 32px var(--primary-glow), 0 8px 24px rgba(0,0,0,0.40)',
+                }}>
                     A
                 </div>
-                <div
-                    style={{
-                        fontSize: 22,
-                        fontWeight: 700,
-                        color: 'var(--text-primary)',
-                        marginBottom: 4,
-                        letterSpacing: '-0.01em',
-                    }}
-                >
+                <div style={{
+                    fontSize:      22,
+                    fontWeight:    700,
+                    color:         'var(--text-primary)',
+                    marginBottom:  4,
+                    letterSpacing: '-0.02em',
+                }}>
                     Admin Panel
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
@@ -117,30 +113,25 @@ export function LoginForm() {
                 </div>
             </div>
 
-            {/* Form panel */}
+            {/* Glass-overlay card */}
             <div className="auth-panel">
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     noValidate
-                    style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
                 >
-                    {/* Email */}
                     <div>
-                        <label
-                            style={{
-                                display: 'block',
-                                fontSize: 12,
-                                fontWeight: 500,
-                                color: 'var(--text-secondary)',
-                                marginBottom: 6,
-                            }}
-                        >
+                        <label style={{
+                            display:      'block',
+                            fontSize:     12,
+                            fontWeight:   500,
+                            color:        'var(--text-secondary)',
+                            marginBottom: 7,
+                        }}>
                             Email address
                         </label>
                         <div className="input-icon-wrap">
-                            <span className="input-icon-left">
-                                <EnvelopeIcon />
-                            </span>
+                            <span className="input-icon-left"><EnvelopeIcon /></span>
                             <input
                                 type="email"
                                 autoComplete="email"
@@ -150,29 +141,24 @@ export function LoginForm() {
                             />
                         </div>
                         {errors.email && (
-                            <p style={{ fontSize: 12, color: 'var(--error)', marginTop: 4 }}>
+                            <p style={{ fontSize: 12, color: 'var(--error-text)', marginTop: 5 }}>
                                 {errors.email.message}
                             </p>
                         )}
                     </div>
 
-                    {/* Password */}
                     <div>
-                        <label
-                            style={{
-                                display: 'block',
-                                fontSize: 12,
-                                fontWeight: 500,
-                                color: 'var(--text-secondary)',
-                                marginBottom: 6,
-                            }}
-                        >
+                        <label style={{
+                            display:      'block',
+                            fontSize:     12,
+                            fontWeight:   500,
+                            color:        'var(--text-secondary)',
+                            marginBottom: 7,
+                        }}>
                             Password
                         </label>
                         <div className="input-icon-wrap">
-                            <span className="input-icon-left">
-                                <LockIcon />
-                            </span>
+                            <span className="input-icon-left"><LockIcon /></span>
                             <input
                                 type="password"
                                 autoComplete="current-password"
@@ -182,7 +168,7 @@ export function LoginForm() {
                             />
                         </div>
                         {errors.password && (
-                            <p style={{ fontSize: 12, color: 'var(--error)', marginTop: 4 }}>
+                            <p style={{ fontSize: 12, color: 'var(--error-text)', marginTop: 5 }}>
                                 {errors.password.message}
                             </p>
                         )}
@@ -194,28 +180,21 @@ export function LoginForm() {
                         className="btn btn-primary"
                         style={{ width: '100%', marginTop: 4, gap: 8 }}
                     >
-                        {loading ? 'Signing in…' : (
-                            <>
-                                Sign in
-                                <ArrowRightIcon />
-                            </>
-                        )}
+                        {loading ? 'Signing in…' : (<>Sign in <ArrowRightIcon /></>)}
                     </button>
                 </form>
             </div>
 
             {/* Security notice */}
-            <p
-                style={{
-                    textAlign: 'center',
-                    fontSize: 11,
-                    color: 'var(--text-muted)',
-                    marginTop: 16,
-                    lineHeight: 1.5,
-                }}
-            >
+            <p style={{
+                textAlign:  'center',
+                fontSize:   11,
+                color:      'var(--text-muted)',
+                marginTop:  18,
+                lineHeight: 1.6,
+            }}>
                 Authorised administrators only.
-                All actions are logged and audited.
+                <br />All actions are logged and audited.
             </p>
         </div>
     );
