@@ -1,7 +1,9 @@
 // Status badge — the most-used visual signal in the admin panel.
 // Every user row, every event row, every verification row uses one.
 // Variants map directly to semantic states — never use color for decoration.
-type BadgeVariant =
+import React from 'react';
+
+export type BadgeVariant =
     | 'active'    // green  — account active, verification passed
     | 'inactive'  // red    — account deactivated, blocked
     | 'verified'  // green  — ID verified
@@ -17,8 +19,6 @@ interface BadgeProps {
     dot?: boolean;   // shows a colored dot before text
     className?: string;
 }
-
-import React from 'react';
 
 // Maps security event types to badge variants — keeps switch logic out of tables
 export const EVENT_TYPE_VARIANT: Record<string, BadgeVariant> = {
