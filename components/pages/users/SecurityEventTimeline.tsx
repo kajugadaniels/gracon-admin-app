@@ -10,6 +10,7 @@ import { Badge, EVENT_TYPE_VARIANT } from '@/components/ui';
 import type { SecurityEventItem } from '@/api/users/get-user.api';
 
 interface SecurityEventTimelineProps {
+    userId: string;
     events: SecurityEventItem[];
 }
 
@@ -48,7 +49,7 @@ function timeAgo(iso: string): string {
     return `${days}d ago`;
 }
 
-export function SecurityEventTimeline({ events }: SecurityEventTimelineProps) {
+export function SecurityEventTimeline({ userId, events }: SecurityEventTimelineProps) {
     return (
         <div className="glass-card" style={{ borderRadius: 'var(--radius-lg)', padding: '16px 20px' }}>
             <div
@@ -158,7 +159,7 @@ export function SecurityEventTimeline({ events }: SecurityEventTimelineProps) {
 
             {/* Link to full security events filtered to this user */}
             <Link
-                href={`/security-events?userId=${events[0]?.userId ?? ''}`}
+                href={`/security-events?userId=${userId}`}
                 style={{
                     display: 'block',
                     textAlign: 'center',
