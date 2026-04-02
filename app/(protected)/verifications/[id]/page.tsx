@@ -3,10 +3,12 @@ import { VerificationDetailClient } from '@/components/pages/verifications';
 
 export const metadata: Metadata = { title: 'Verification detail' };
 
-export default function VerificationDetailPage({
+export default async function VerificationDetailPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }) {
-    return <VerificationDetailClient verificationId={params.id} />;
+    const { id } = await params;
+
+    return <VerificationDetailClient verificationId={id} />;
 }
