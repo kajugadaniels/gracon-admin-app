@@ -1170,3 +1170,10 @@ body::before {
     grid-template-columns: 1fr !important;
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes threatPulse {
+    0%, 100% { opacity: 1;   box-shadow: 0 0 5px var(--error); }
+    50%       { opacity: 0.4; box-shadow: 0 0 2px var(--error); }
+  }
+}
