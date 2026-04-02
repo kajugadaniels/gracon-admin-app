@@ -37,7 +37,7 @@ const ACTION_OPTIONS = [
     { value: 'ADMIN_CREATED', label: 'Admin created' },
     { value: 'ADMIN_DEACTIVATED', label: 'Admin deactivated' },
     { value: 'ADMIN_REACTIVATED', label: 'Admin reactivated' },
-    { value: 'ADMIN_INVITE_RESENT', 'label: Admin invite resent'    },
+    { value: 'ADMIN_INVITE_RESENT', label: 'Admin invite resent' },
 ];
 
 export function AuditFilters({
