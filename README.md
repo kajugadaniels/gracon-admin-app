@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# App Admin
 
-## Getting Started
+Admin frontend for the Gracon platform.
 
-First, run the development server:
+This is the operator-facing Next.js application used to manage administrators, review verification activity, inspect audit/security logs, and monitor core platform metrics. It talks only to `api/admin`.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Overview
+
+- Runtime: Next.js 15 + React + TypeScript
+- Default port: `4001`
+- Styling: Tailwind CSS
+- State: Zustand for auth/session state
+- Charts/UI: Recharts, React Hook Form, Zod
+
+## What This App Owns
+
+- Admin login and invite password setup
+- Protected admin dashboard
+- Admin user management screens
+- Verification review pages
+- Audit log and security-event pages
+- Platform stats and operational summaries
+
+## Core Skills Needed
+
+- Next.js App Router
+- Secure frontend token handling
+- Dashboard composition and table/filter UX
+- Form validation with React Hook Form + Zod
+- Admin-oriented state management
+
+## Techniques Used
+
+- Independent admin session boundary from end-user apps
+- Zustand + sessionStorage token persistence
+- Axios client with silent refresh
+- Protected `(auth)` and `(protected)` route segmentation
+- Dynamic loading patterns for heavy dashboard visuals
+
+## Main Areas
+
+```text
+app/
+  (auth)/         login and set-password pages
+  (protected)/    dashboard, users, verifications, admins, audit, security-events
+api/              typed client modules for api/admin
+components/
+  pages/          feature-specific screens
+  shell/          sidebar/header/layout
+  ui/             shared UI primitives
+lib/
+  hooks/
+  store/          admin auth state
+constants/        app-level configuration
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Folder Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+app/admin/
+  app/
+  api/
+  components/
+  constants/
+  lib/
+  public/
+  package.json
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Commands
 
-## Learn More
+```bash
+npm install
+npm run dev
+npm run build
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Key variables:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```env
+NEXT_PUBLIC_ADMIN_API_URL=http://localhost:3001/api/v1
+```
 
-## Deploy on Vercel
+## Integration Boundaries
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Calls `api/admin` only
+- Must never mix admin tokens with regular user tokens
+- Should not talk directly to `api/auth`, `api/documents`, or other business services
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Important Rules
+
+- Keep admin auth isolated from the user-facing apps
+- Protect all sensitive routes and handle silent refresh failures by redirecting cleanly to login
+- Paginate and filter large operational datasets instead of loading everything eagerly
+
+## Contribution Checklist
+
+- Add typed API modules before wiring UI
+- Verify auth gating for every new protected page
+- Test dashboard layouts at narrow and wide breakpoints
+
