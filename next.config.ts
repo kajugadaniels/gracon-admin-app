@@ -1,7 +1,11 @@
-// next.config.ts
+import path from "node:path";
+
 const nextConfig = {
   experimental: {
     optimizePackageImports: ['recharts'],
+  },
+  turbopack: {
+    root: path.resolve(__dirname),
   },
   images: {
     remotePatterns: [
