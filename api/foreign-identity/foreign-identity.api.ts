@@ -1,4 +1,4 @@
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { createAdminApiClient } from '@/api/client';
 import type {
     DecryptedPassportResponse,
@@ -19,18 +19,30 @@ const foreignIdentityClient = createAdminApiClient(
 );
 
 const LIST_REQUEST_COOLDOWN_MS = 800;
+const LIST_SESSION_CACHE_TTL_MS = 15_000;
+const LIST_SESSION_CACHE_PREFIX = 'foreign-identity:list:';
+
+interface ApiResult<T> {
+    data: T;
+}
+
+interface CachedListResponse {
+    key: string;
+    data: PaginatedForeignIdentitiesResponse;
+    expiresAt: number;
+}
 
 let pendingListRequest:
     | {
         key: string;
-        promise: Promise<AxiosResponse<PaginatedForeignIdentitiesResponse>>;
+        promise: Promise<ApiResult<PaginatedForeignIdentitiesResponse>>;
     }
     | null = null;
 
 let recentListResponse:
     | {
         key: string;
-        response: AxiosResponse<PaginatedForeignIdentitiesResponse>;
+        response: ApiResult<PaginatedForeignIdentitiesResponse>;
         expiresAt: number;
     }
     | null = null;
@@ -57,6 +69,62 @@ function buildListRequestKey(params?: ListForeignIdentitiesParams) {
     });
 }
 
+function buildListStorageKey(key: string) {
+    return `${LIST_SESSION_CACHE_PREFIX}${key}`;
+}
+
+function readCachedListResponse(key: string) {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    const raw = window.sessionStorage.getItem(buildListStorageKey(key));
+    if (!raw) {
+        return null;
+    }
+
+    try {
+        const cached = JSON.parse(raw) as CachedListResponse;
+        if (cached.expiresAt <= Date.now()) {
+            window.sessionStorage.removeItem(buildListStorageKey(key));
+            return null;
+        }
+
+        return { data: cached.data };
+    } catch {
+        window.sessionStorage.removeItem(buildListStorageKey(key));
+        return null;
+    }
+}
+
+function storeCachedListResponse(
+    key: string,
+    data: PaginatedForeignIdentitiesResponse,
+) {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    const payload: CachedListResponse = {
+        key,
+        data,
+        expiresAt: Date.now() + LIST_SESSION_CACHE_TTL_MS,
+    };
+
+    window.sessionStorage.setItem(
+        buildListStorageKey(key),
+        JSON.stringify(payload),
+    );
+}
+
+function buildListResult(data: PaginatedForeignIdentitiesResponse) {
+    return { data };
+}
+
+function isRateLimited(error: unknown) {
+    return error instanceof AxiosError && error.response?.status === 429;
+}
+
 export function registerForeignIdentity(data: RegisterForeignIdentityInput) {
     return foreignIdentityClient.post<ForeignIdentityProfile>(
         '/foreign-identities/register',
@@ -67,6 +135,7 @@ export function registerForeignIdentity(data: RegisterForeignIdentityInput) {
 export function listForeignIdentities(params?: ListForeignIdentitiesParams) {
     const key = buildListRequestKey(params);
     const now = Date.now();
+    const cachedResponse = readCachedListResponse(key);
 
     if (pendingListRequest?.key === key) {
         return pendingListRequest.promise;
@@ -76,26 +145,36 @@ export function listForeignIdentities(params?: ListForeignIdentitiesParams) {
         return Promise.resolve(recentListResponse.response);
     }
 
-    const promise = foreignIdentityClient.get<PaginatedForeignIdentitiesResponse>(
-        '/foreign-identities',
-        { params },
-    );
+    if (cachedResponse) {
+        return Promise.resolve(cachedResponse);
+    }
 
-    pendingListRequest = { key, promise };
-
-    promise
+    const promise = foreignIdentityClient
+        .get<PaginatedForeignIdentitiesResponse>('/foreign-identities', { params })
         .then((response) => {
+            const result = buildListResult(response.data);
             recentListResponse = {
                 key,
-                response,
+                response: result,
                 expiresAt: Date.now() + LIST_REQUEST_COOLDOWN_MS,
             };
+            storeCachedListResponse(key, response.data);
+            return result;
+        })
+        .catch((error: unknown) => {
+            if (isRateLimited(error) && cachedResponse) {
+                return cachedResponse;
+            }
+
+            throw error;
         })
         .finally(() => {
             if (pendingListRequest?.key === key) {
                 pendingListRequest = null;
             }
         });
+
+    pendingListRequest = { key, promise };
 
     return promise;
 }
