@@ -14,6 +14,7 @@ import {
     SecurityAlert,
     RecentActivity,
     VerificationSummary,
+    ForeignIdentityInsights,
 } from '@/components/pages/dashboard';
 import {
     getStatsApi,
@@ -121,6 +122,12 @@ export function DashboardClient() {
                 }
             />
 
+            {statsError && (
+                <div style={errorBannerStyle}>
+                    {statsError}
+                </div>
+            )}
+
             {/* Security alert — only shown above threshold */}
             {stats && (
                 <SecurityAlert
@@ -204,6 +211,11 @@ export function DashboardClient() {
                 />
             </div>
 
+            <ForeignIdentityInsights
+                insights={stats?.foreignIdentityStats}
+                loading={statsLoading}
+            />
+
             {/* Recent security events */}
             <RecentActivity
                 events={recentEvents}
@@ -246,3 +258,14 @@ function getTimeOfDay(): string {
     if (hour < 17) return 'afternoon';
     return 'evening';
 }
+
+const errorBannerStyle: React.CSSProperties = {
+    marginBottom: 16,
+    padding: '12px 14px',
+    borderRadius: 'var(--radius)',
+    border: '1px solid var(--warning-border)',
+    background: 'var(--warning-glass)',
+    color: 'var(--warning-text)',
+    fontSize: 13,
+    fontWeight: 500,
+};
