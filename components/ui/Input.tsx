@@ -15,8 +15,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         { label, error, hint, search = false, className = '', style, id, ...props },
         ref,
     ) {
-        // Generate a stable id if none provided — needed for label htmlFor
-        const inputId = id ?? `input-${Math.random().toString(36).slice(2, 7)}`;
+        const generatedId = React.useId();
+        const inputId = id ?? generatedId;
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
