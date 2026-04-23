@@ -122,7 +122,7 @@ export function AuditHistory({ userId, history }: AuditHistoryProps) {
                                             lineHeight: 1.5,
                                         }}
                                     >
-                                        "{reasonText}"
+                                        &quot;{reasonText}&quot;
                                     </div>
                                 )}
                             </div>
