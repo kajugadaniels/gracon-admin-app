@@ -2,7 +2,7 @@
 
 Admin frontend for the Gracon platform.
 
-This is the operator-facing Next.js application used to manage administrators, review verification activity, inspect audit/security logs, and monitor core platform metrics. It talks only to `api/admin`.
+This is the operator-facing Next.js application used to manage administrators, review verification activity, inspect audit/security logs, and monitor core platform metrics. It talks only to `api/admin` for dashboard intelligence and to `api/foreign-identity` for registry operations.
 
 ## Overview
 
@@ -16,6 +16,7 @@ This is the operator-facing Next.js application used to manage administrators, r
 
 - Admin login and invite password setup
 - Protected admin dashboard
+- Dashboard with foreign identity registry analysis
 - Admin user management screens
 - Foreign identity registry management screens
 - Verification review pages
