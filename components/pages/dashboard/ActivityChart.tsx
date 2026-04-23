@@ -39,17 +39,22 @@ function toShortDay(isoDate: string): string {
 }
 
 // Custom tooltip — cleaner than recharts default
+interface ActivityTooltipProps {
+    active?: boolean;
+    payload?: Array<{ value?: number; payload?: { date?: string } }>;
+    metricLabel: string;
+}
+
 function CustomTooltip({
     active,
     payload,
-    label: _label,
     metricLabel,
-}: any) {
+}: ActivityTooltipProps) {
     if (!active || !payload?.length) return null;
 
     const entry = payload[0];
     const isoDate = entry?.payload?.date;
-    const count = entry?.value;
+    const count = entry?.value ?? 0;
 
     const formatted = isoDate
         ? new Date(isoDate + 'T12:00:00Z').toLocaleDateString('en-US', {
