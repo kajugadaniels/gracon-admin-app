@@ -79,7 +79,7 @@ export function UsersClient() {
         setError(null);
 
         try {
-            const params: Record<string, any> = {
+            const params: Record<string, string | number | boolean> = {
                 page: currentPage,
                 limit: DEFAULT_LIMIT,
             };
