@@ -82,7 +82,7 @@ export function VerificationsClient() {
         setLoading(true);
         setError(null);
         try {
-            const params: Record<string, any> = { page: p, limit: DEFAULT_LIMIT };
+            const params: Record<string, string | number | boolean> = { page: p, limit: DEFAULT_LIMIT };
             if (f.passed !== '') params.passed = f.passed === 'true';
             if (ip) params.ipAddress = ip;
             if (f.createdFrom) params.createdFrom = new Date(f.createdFrom).toISOString();
