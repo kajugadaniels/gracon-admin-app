@@ -34,6 +34,15 @@ export const Icon = {
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
     ),
+    Passport: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="5" y="3" width="14" height="18" rx="2" />
+            <path d="M9 7h6" />
+            <circle cx="12" cy="13" r="2.5" />
+            <path d="M8.5 18a4 4 0 0 1 7 0" />
+        </svg>
+    ),
     Shield: () => (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -89,6 +98,11 @@ export const NAV_ITEMS: NavItem[] = [
         href: '/users',
         label: 'Users',
         icon: <Icon.Users />,
+    },
+    {
+        href: '/admin/foreign-identities',
+        label: 'Foreign Identities',
+        icon: <Icon.Passport />,
     },
     {
         href: '/verifications',
