@@ -17,6 +17,16 @@ import { updateIdVerificationApi } from '@/api/users/update-id-verification.api'
 import { decryptNidApi } from '@/api/users/decrypt-nid.api';
 import type { UserDetail } from '@/api/users/get-user.api';
 
+function getApiErrorMessage(error: unknown, fallback: string) {
+    if (typeof error !== 'object' || !error) return fallback;
+    const response = Reflect.get(error, 'response');
+    if (typeof response !== 'object' || !response) return fallback;
+    const data = Reflect.get(response, 'data');
+    if (typeof data !== 'object' || !data) return fallback;
+    const message = Reflect.get(data, 'message');
+    return typeof message === 'string' ? message : fallback;
+}
+
 // SSR-safe portal modal
 const ConfirmModal = dynamic(
     () => import('@/components/ui/ConfirmModal').then((m) => m.ConfirmModal),
@@ -177,8 +187,8 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
             toast.success('Account deactivated. All sessions revoked.');
             closeModal();
             onRefresh();
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to deactivate account.');
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to deactivate account.'));
         } finally {
             setLoading(false);
         }
@@ -191,8 +201,8 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
             toast.success('Account reactivated.');
             closeModal();
             onRefresh();
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to reactivate account.');
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to reactivate account.'));
         } finally {
             setLoading(false);
         }
@@ -205,8 +215,8 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
             toast.success(res.data.message);
             closeModal();
             onRefresh();
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to revoke sessions.');
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to revoke sessions.'));
         } finally {
             setLoading(false);
         }
@@ -219,8 +229,8 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
             toast.success('User manually marked as ID-verified.');
             closeModal();
             onRefresh();
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to update ID status.');
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to update ID status.'));
         } finally {
             setLoading(false);
         }
@@ -233,8 +243,8 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
             toast.success('ID verification revoked.');
             closeModal();
             onRefresh();
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to revoke ID status.');
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to revoke ID status.'));
         } finally {
             setLoading(false);
         }
@@ -247,8 +257,8 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
             setDecryptedNid(res.data.nid);
             // Keep modal open to show the value — close handled by user
             toast.success('NID decrypted. Access has been logged.');
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? 'Failed to decrypt NID.');
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to decrypt NID.'));
             closeModal();
         } finally {
             setLoading(false);
