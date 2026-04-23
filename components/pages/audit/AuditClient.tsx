@@ -71,7 +71,7 @@ export function AuditClient() {
         setLoading(true);
         setError(null);
         try {
-            const params: Record<string, any> = { page: p, limit: DEFAULT_LIMIT };
+            const params: Record<string, string | number> = { page: p, limit: DEFAULT_LIMIT };
             if (f.action) params.action = f.action;
             if (f.createdFrom) params.createdFrom = new Date(f.createdFrom).toISOString();
             if (f.createdTo) params.createdTo = new Date(f.createdTo + 'T23:59:59').toISOString();
