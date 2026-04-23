@@ -10,9 +10,30 @@ import type {
     UpdateForeignIdentityInput,
 } from './foreign-identity.types';
 
+const FOREIGN_IDENTITY_API_URL =
+    process.env.NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL ??
+    'http://localhost:3006/api/v1';
+
 const foreignIdentityClient = createAdminApiClient(
-    process.env.NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL!,
+    FOREIGN_IDENTITY_API_URL,
 );
+
+const LIST_REQUEST_COOLDOWN_MS = 800;
+
+let pendingListRequest:
+    | {
+        key: string;
+        promise: Promise<AxiosResponse<PaginatedForeignIdentitiesResponse>>;
+    }
+    | null = null;
+
+let recentListResponse:
+    | {
+        key: string;
+        response: AxiosResponse<PaginatedForeignIdentitiesResponse>;
+        expiresAt: number;
+    }
+    | null = null;
 
 interface ReasonPayload {
     reason: string;
@@ -24,6 +45,18 @@ function buildImageFormData(file: File) {
     return formData;
 }
 
+function buildListRequestKey(params?: ListForeignIdentitiesParams) {
+    return JSON.stringify({
+        page: params?.page ?? 1,
+        limit: params?.limit ?? 20,
+        countryOfOrigin: params?.countryOfOrigin ?? '',
+        gender: params?.gender ?? '',
+        maritalStatus: params?.maritalStatus ?? '',
+        includeInactive: params?.includeInactive ?? false,
+        search: params?.search ?? '',
+    });
+}
+
 export function registerForeignIdentity(data: RegisterForeignIdentityInput) {
     return foreignIdentityClient.post<ForeignIdentityProfile>(
         '/foreign-identities/register',
@@ -32,10 +65,39 @@ export function registerForeignIdentity(data: RegisterForeignIdentityInput) {
 }
 
 export function listForeignIdentities(params?: ListForeignIdentitiesParams) {
-    return foreignIdentityClient.get<PaginatedForeignIdentitiesResponse>(
+    const key = buildListRequestKey(params);
+    const now = Date.now();
+
+    if (pendingListRequest?.key === key) {
+        return pendingListRequest.promise;
+    }
+
+    if (recentListResponse?.key === key && recentListResponse.expiresAt > now) {
+        return Promise.resolve(recentListResponse.response);
+    }
+
+    const promise = foreignIdentityClient.get<PaginatedForeignIdentitiesResponse>(
         '/foreign-identities',
         { params },
     );
+
+    pendingListRequest = { key, promise };
+
+    promise
+        .then((response) => {
+            recentListResponse = {
+                key,
+                response,
+                expiresAt: Date.now() + LIST_REQUEST_COOLDOWN_MS,
+            };
+        })
+        .finally(() => {
+            if (pendingListRequest?.key === key) {
+                pendingListRequest = null;
+            }
+        });
+
+    return promise;
 }
 
 export function lookupForeignIdentity(passportNumber: string) {
