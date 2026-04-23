@@ -26,6 +26,16 @@ const CreateAdminModal = dynamic(
 // Add this API file now:
 import { apiClient } from '@/api/client';
 
+function getApiErrorMessage(error: unknown, fallback: string) {
+    if (typeof error !== 'object' || !error) return fallback;
+    const response = Reflect.get(error, 'response');
+    if (typeof response !== 'object' || !response) return fallback;
+    const data = Reflect.get(response, 'data');
+    if (typeof data !== 'object' || !data) return fallback;
+    const message = Reflect.get(data, 'message');
+    return typeof message === 'string' ? message : fallback;
+}
+
 async function listAdminsApi(): Promise<AdminRow[]> {
     const res = await apiClient.get<{ data: AdminRow[] }>('/auth/admins');
     return res.data.data;
@@ -58,11 +68,8 @@ export function AdminsClient() {
         try {
             const data = await listAdminsApi();
             setAdmins(data);
-        } catch (err: any) {
-            setError(
-                err?.response?.data?.message ??
-                'Failed to load admins.',
-            );
+        } catch (err: unknown) {
+            setError(getApiErrorMessage(err, 'Failed to load admins.'));
         } finally {
             setLoading(false);
         }
@@ -101,11 +108,8 @@ export function AdminsClient() {
         try {
             await resendInviteApi(adminId);
             toast.success(`Invite resent to ${email}.`);
-        } catch (err: any) {
-            toast.error(
-                err?.response?.data?.message ??
-                'Failed to resend invite.',
-            );
+        } catch (err: unknown) {
+            toast.error(getApiErrorMessage(err, 'Failed to resend invite.'));
         } finally {
             setResendingId(null);
         }
