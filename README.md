@@ -36,6 +36,7 @@ This is the operator-facing Next.js application used to manage administrators, r
 - Independent admin session boundary from end-user apps
 - Zustand + sessionStorage token persistence
 - Axios client with silent refresh
+- Foreign identity list request deduplication plus short-lived session cache to soften local reload rate limits
 - Protected `(auth)` and `(protected)` route segmentation
 - Dynamic loading patterns for heavy dashboard visuals
 
@@ -86,6 +87,8 @@ Key variables:
 NEXT_PUBLIC_ADMIN_API_URL=http://localhost:3001/api/v1
 NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL=http://localhost:3006/api/v1
 ```
+
+If `NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL` is omitted, the admin app falls back to `http://localhost:3006/api/v1`. When you change any `NEXT_PUBLIC_*` value during local development, restart `npm run dev` so the browser bundle picks up the new value.
 
 ## Integration Boundaries
 
