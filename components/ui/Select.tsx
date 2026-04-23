@@ -19,7 +19,8 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         { label, error, options, placeholder, className = '', id, ...props },
         ref,
     ) {
-        const selectId = id ?? `select-${Math.random().toString(36).slice(2, 7)}`;
+        const generatedId = React.useId();
+        const selectId = id ?? generatedId;
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
