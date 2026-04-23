@@ -17,6 +17,7 @@ This is the operator-facing Next.js application used to manage administrators, r
 - Admin login and invite password setup
 - Protected admin dashboard
 - Admin user management screens
+- Foreign identity registry management screens
 - Verification review pages
 - Audit log and security-event pages
 - Platform stats and operational summaries
@@ -28,6 +29,7 @@ This is the operator-facing Next.js application used to manage administrators, r
 - Dashboard composition and table/filter UX
 - Form validation with React Hook Form + Zod
 - Admin-oriented state management
+- High-trust registry workflows for FIN-backed identities
 
 ## Techniques Used
 
@@ -82,11 +84,12 @@ Key variables:
 
 ```env
 NEXT_PUBLIC_ADMIN_API_URL=http://localhost:3001/api/v1
+NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL=http://localhost:3006/api/v1
 ```
 
 ## Integration Boundaries
 
-- Calls `api/admin` only
+- Calls `api/admin` for control-plane data and `api/foreign-identity` for FIN registry management
 - Must never mix admin tokens with regular user tokens
 - Should not talk directly to `api/auth`, `api/documents`, or other business services
 
@@ -101,4 +104,3 @@ NEXT_PUBLIC_ADMIN_API_URL=http://localhost:3001/api/v1
 - Add typed API modules before wiring UI
 - Verify auth gating for every new protected page
 - Test dashboard layouts at narrow and wide breakpoints
-
