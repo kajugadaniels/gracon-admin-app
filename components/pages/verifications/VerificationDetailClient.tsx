@@ -15,6 +15,16 @@ import {
     type VerificationDetail,
 } from '@/api/verifications/get-verification.api';
 
+function getApiErrorMessage(error: unknown, fallback: string) {
+    if (typeof error !== 'object' || !error) return fallback;
+    const response = Reflect.get(error, 'response');
+    if (typeof response !== 'object' || !response) return fallback;
+    const data = Reflect.get(response, 'data');
+    if (typeof data !== 'object' || !data) return fallback;
+    const message = Reflect.get(data, 'message');
+    return typeof message === 'string' ? message : fallback;
+}
+
 interface VerificationDetailClientProps {
     verificationId: string;
 }
@@ -108,11 +118,8 @@ export function VerificationDetailClient({
         try {
             const res = await getVerificationApi(verificationId);
             setData(res.data);
-        } catch (err: any) {
-            setError(
-                err?.response?.data?.message ??
-                'Failed to load verification attempt.',
-            );
+        } catch (err: unknown) {
+            setError(getApiErrorMessage(err, 'Failed to load verification attempt.'));
         } finally {
             setLoading(false);
         }
