@@ -15,6 +15,16 @@ import { Button } from '@/components/ui';
 import { createAdminApi, type CreateAdminPayload }
     from '@/api/admins/create-admin.api';
 
+function getApiErrorMessage(error: unknown, fallback: string) {
+    if (typeof error !== 'object' || !error) return fallback;
+    const response = Reflect.get(error, 'response');
+    if (typeof response !== 'object' || !response) return fallback;
+    const data = Reflect.get(response, 'data');
+    if (typeof data !== 'object' || !data) return fallback;
+    const message = Reflect.get(data, 'message');
+    return typeof message === 'string' ? message : fallback;
+}
+
 const schema = z.object({
     firstName: z.string().min(2, 'First name must be at least 2 characters').max(64),
     lastName: z.string().min(2, 'Last name must be at least 2 characters').max(64),
@@ -135,11 +145,10 @@ export function CreateAdminModal({
             );
             onSuccess(res.data.data);
             onClose();
-        } catch (err: any) {
-            const msg =
-                err?.response?.data?.message ??
-                'Failed to create admin account. Please try again.';
-            toast.error(msg);
+        } catch (err: unknown) {
+            toast.error(
+                getApiErrorMessage(err, 'Failed to create admin account. Please try again.'),
+            );
         } finally {
             setLoading(false);
         }
@@ -216,7 +225,7 @@ export function CreateAdminModal({
                                 {...register('firstName')}
                                 ref={(e) => {
                                     register('firstName').ref(e);
-                                    (firstInputRef as any).current = e;
+                                    firstInputRef.current = e;
                                 }}
                             />
                             <FieldError message={errors.firstName?.message} />
