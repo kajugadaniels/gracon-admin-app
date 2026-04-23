@@ -14,6 +14,16 @@ import { UserActionModals } from './UserActionModals';
 import { useUserActions } from './useUserActions';
 import { getUserApi, type UserDetail } from '@/api/users/get-user.api';
 
+function getApiErrorMessage(error: unknown, fallback: string) {
+    if (typeof error !== 'object' || !error) return fallback;
+    const response = Reflect.get(error, 'response');
+    if (typeof response !== 'object' || !response) return fallback;
+    const data = Reflect.get(response, 'data');
+    if (typeof data !== 'object' || !data) return fallback;
+    const message = Reflect.get(data, 'message');
+    return typeof message === 'string' ? message : fallback;
+}
+
 interface UserDetailClientProps {
     userId: string;
 }
@@ -39,11 +49,8 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
         try {
             const res = await getUserApi(userId);
             setUser(res.data);
-        } catch (err: any) {
-            setError(
-                err?.response?.data?.message ??
-                'Failed to load user. They may not exist.',
-            );
+        } catch (err: unknown) {
+            setError(getApiErrorMessage(err, 'Failed to load user. They may not exist.'));
         } finally {
             setLoading(false);
         }
