@@ -22,17 +22,16 @@ export function useCountUp(
             window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         if (prefersReduced || target === 0) {
-            setValue(target);
+            rafRef.current = requestAnimationFrame(() => setValue(target));
             return;
         }
 
-        // Reset to 0 when target changes
-        setValue(0);
         startTimeRef.current = 0;
 
         const animate = (timestamp: number) => {
             if (!startTimeRef.current) {
                 startTimeRef.current = timestamp;
+                setValue(0);
             }
 
             const elapsed = timestamp - startTimeRef.current;
