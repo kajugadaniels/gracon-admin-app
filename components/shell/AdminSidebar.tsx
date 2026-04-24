@@ -11,8 +11,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebarStore, hydrateSidebar } from '@/lib/store/sidebar.store';
 import { useAdminAuthStore } from '@/lib/store/admin-auth.store';
-import { NAV_ITEMS, Icon } from '@/constants/navigation';
-import type { NavItem } from '@/constants/navigation';
+import { NAV_SECTIONS, Icon } from '@/constants/navigation';
+import type { NavItem, NavSection } from '@/constants/navigation';
 
 // ── Tooltip — shown when sidebar is collapsed and item is hovered ──────────
 
@@ -110,9 +110,64 @@ export function AdminSidebar() {
         hydrateSidebar();
     }, []);
 
-    const visibleItems = NAV_ITEMS.filter(
-        (item) => !item.superAdminOnly || isSuperAdmin,
-    );
+    const visibleSections = NAV_SECTIONS.map((section: NavSection) => ({
+        ...section,
+        items: section.items.filter(
+            (item) => !item.superAdminOnly || isSuperAdmin,
+        ),
+    })).filter((section) => section.items.length > 0);
+
+    const isSectioned = visibleSections.some((section) => section.label);
+
+    const navSectionStyle: React.CSSProperties = {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+    };
+
+    const navSectionLabelStyle: React.CSSProperties = {
+        fontSize: 10,
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        color: 'var(--text-muted)',
+        padding: collapsed ? '10px 8px 4px' : '10px 10px 4px',
+    };
+
+    const navDividerStyle: React.CSSProperties = {
+        height: 1,
+        background: 'var(--glass-panel-border)',
+        margin: collapsed ? '10px 6px 6px' : '12px 8px 6px',
+        borderRadius: 999,
+    };
+
+    const showSectionLabel = (section: NavSection) =>
+        Boolean(section.label) && !collapsed;
+
+    const sectionNeedsDivider = (section: NavSection, index: number) =>
+        Boolean(section.label) && index > 0 && isSectioned;
+
+    const renderSection = (section: NavSection, index: number) => {
+        return (
+            <div key={section.label ?? `section-${index}`} style={navSectionStyle}>
+                {sectionNeedsDivider(section, index) && (
+                    <div aria-hidden="true" style={navDividerStyle} />
+                )}
+                {showSectionLabel(section) && (
+                    <div style={navSectionLabelStyle}>{section.label}</div>
+                )}
+                {section.items.map((item) => (
+                    <NavItemLink
+                        key={item.href}
+                        item={item}
+                        active={isActive(item.href)}
+                        collapsed={collapsed}
+                        onClick={closeMobile}
+                    />
+                ))}
+            </div>
+        );
+    };
 
     const isActive = (href: string) => {
         if (href === '/dashboard') return pathname === '/dashboard';
@@ -153,17 +208,8 @@ export function AdminSidebar() {
                     </div>
                 </div>
 
-                {/* Navigation — no section labels per design spec */}
                 <nav className="sidebar-nav" aria-label="Main navigation">
-                    {visibleItems.map((item) => (
-                        <NavItemLink
-                            key={item.href}
-                            item={item}
-                            active={isActive(item.href)}
-                            collapsed={collapsed}
-                            onClick={closeMobile}
-                        />
-                    ))}
+                    {visibleSections.map(renderSection)}
                 </nav>
 
                 {/* Footer collapse toggle */}
