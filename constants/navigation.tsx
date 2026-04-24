@@ -13,6 +13,11 @@ export interface NavItem {
     superAdminOnly?: boolean;
 }
 
+export interface NavSection {
+    label?: string;
+    items: NavItem[];
+}
+
 // ── SVG icons — inline, no external dependency ───────────────────────────
 
 export const Icon = {
@@ -41,6 +46,42 @@ export const Icon = {
             <path d="M9 7h6" />
             <circle cx="12" cy="13" r="2.5" />
             <path d="M8.5 18a4 4 0 0 1 7 0" />
+        </svg>
+    ),
+    Signature: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 17c3.5 0 3.5-8 7-8s3.5 8 7 8c1.5 0 2.5-.5 4-2" />
+            <path d="M3 21h18" />
+        </svg>
+    ),
+    Certificate: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="3" width="16" height="18" rx="2" />
+            <path d="M8 7h8" />
+            <path d="M8 11h8" />
+            <path d="M9 15l3 2 3-2" />
+        </svg>
+    ),
+    Building: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 21h18" />
+            <path d="M5 21V7l7-4 7 4v14" />
+            <path d="M9 10h.01" />
+            <path d="M15 10h.01" />
+            <path d="M9 14h.01" />
+            <path d="M15 14h.01" />
+            <path d="M10 21v-4h4v4" />
+        </svg>
+    ),
+    Stamp: () => (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8 6a4 4 0 1 1 8 0c0 2 1 3 2 4v2H6v-2c1-1 2-2 2-4Z" />
+            <path d="M5 18h14" />
+            <path d="M7 21h10" />
         </svg>
     ),
     Shield: () => (
@@ -88,41 +129,70 @@ export const Icon = {
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 
-export const NAV_ITEMS: NavItem[] = [
+export const NAV_SECTIONS: NavSection[] = [
     {
-        href: '/dashboard',
-        label: 'Dashboard',
-        icon: <Icon.Dashboard />,
+        items: [
+            {
+                href: '/dashboard',
+                label: 'Dashboard',
+                icon: <Icon.Dashboard />,
+            },
+            {
+                href: '/users',
+                label: 'Users',
+                icon: <Icon.Users />,
+            },
+            {
+                href: '/admin/foreign-identities',
+                label: 'Foreign Identities',
+                icon: <Icon.Passport />,
+            },
+            {
+                href: '/verifications',
+                label: 'Verifications',
+                icon: <Icon.Shield />,
+            },
+            {
+                href: '/audit',
+                label: 'Audit log',
+                icon: <Icon.ClipboardList />,
+            },
+            {
+                href: '/security-events',
+                label: 'Security events',
+                icon: <Icon.AlertTriangle />,
+            },
+            {
+                href: '/admins',
+                label: 'Admins',
+                icon: <Icon.AdminKey />,
+                superAdminOnly: true,
+            },
+        ],
     },
     {
-        href: '/users',
-        label: 'Users',
-        icon: <Icon.Users />,
-    },
-    {
-        href: '/admin/foreign-identities',
-        label: 'Foreign Identities',
-        icon: <Icon.Passport />,
-    },
-    {
-        href: '/verifications',
-        label: 'Verifications',
-        icon: <Icon.Shield />,
-    },
-    {
-        href: '/audit',
-        label: 'Audit log',
-        icon: <Icon.ClipboardList />,
-    },
-    {
-        href: '/security-events',
-        label: 'Security events',
-        icon: <Icon.AlertTriangle />,
-    },
-    {
-        href: '/admins',
-        label: 'Admins',
-        icon: <Icon.AdminKey />,
-        superAdminOnly: true,
+        label: 'Cryptographic Infrastructure',
+        items: [
+            {
+                href: '/admin/signatures',
+                label: 'Signatures',
+                icon: <Icon.Signature />,
+            },
+            {
+                href: '/admin/certificates',
+                label: 'Certificates',
+                icon: <Icon.Certificate />,
+            },
+            {
+                href: '/admin/institutions',
+                label: 'Institutions',
+                icon: <Icon.Building />,
+            },
+            {
+                href: '/admin/stamps',
+                label: 'Stamps',
+                icon: <Icon.Stamp />,
+            },
+        ],
     },
 ];
