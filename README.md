@@ -2,7 +2,7 @@
 
 Admin frontend for the Gracon platform.
 
-This is the operator-facing Next.js application used to manage administrators, review verification activity, inspect audit/security logs, and monitor core platform metrics. It talks only to `api/admin` for dashboard intelligence and to `api/foreign-identity` for registry operations.
+This is the operator-facing Next.js application used to manage administrators, review verification activity, inspect audit/security logs, monitor core platform metrics, and inspect the platform cryptographic infrastructure. It talks to `api/admin` for dashboard intelligence, `api/foreign-identity` for registry operations, and the signature, institution, and stamp services for PKI and stamping visibility.
 
 ## Overview
 
@@ -19,6 +19,7 @@ This is the operator-facing Next.js application used to manage administrators, r
 - Dashboard with foreign identity registry analysis
 - Admin user management screens
 - Foreign identity registry management screens
+- Signature, certificate, institution, and stamp management screens
 - Verification review pages
 - Audit log and security-event pages
 - Platform stats and operational summaries
@@ -87,13 +88,16 @@ Key variables:
 ```env
 NEXT_PUBLIC_ADMIN_API_URL=http://localhost:3001/api/v1
 NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL=http://localhost:3006/api/v1
+NEXT_PUBLIC_SIGNATURE_API_URL=http://localhost:3002/api/v1
+NEXT_PUBLIC_STAMP_API_URL=http://localhost:3003/api/v1
+NEXT_PUBLIC_INSTITUTION_API_URL=http://localhost:3004/api/v1
 ```
 
 If `NEXT_PUBLIC_FOREIGN_IDENTITY_API_URL` is omitted, the admin app falls back to `http://localhost:3006/api/v1`. When you change any `NEXT_PUBLIC_*` value during local development, restart `npm run dev` so the browser bundle picks up the new value.
 
 ## Integration Boundaries
 
-- Calls `api/admin` for control-plane data and `api/foreign-identity` for FIN registry management
+- Calls `api/admin` for control-plane data, `api/foreign-identity` for FIN registry management, and the signature, institution, and stamp services for cryptographic-infrastructure views
 - Must never mix admin tokens with regular user tokens
 - Should not talk directly to `api/auth`, `api/documents`, or other business services
 
