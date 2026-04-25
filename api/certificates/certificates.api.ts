@@ -1,4 +1,8 @@
 // API client for admin certificate-management pages.
+//
+// These endpoints live in api/admin (the admin trust boundary) — never
+// reach into api/signature directly from the admin app. The base URL is
+// the admin API and routes are mounted under /certificates.
 import { createAuthedApiClient } from '@/api/common/axios-factory';
 import type {
     CertificateDetail,
@@ -8,18 +12,18 @@ import type {
     RevokeCertificateInput,
 } from './certificates.types';
 
-const SIGNATURE_API_URL =
-    process.env.NEXT_PUBLIC_SIGNATURE_API_URL ??
-    'http://localhost:3002/api/v1';
+const ADMIN_API_URL =
+    process.env.NEXT_PUBLIC_ADMIN_API_URL ??
+    'http://localhost:3001/api/v1';
 
-const certificatesClient = createAuthedApiClient(SIGNATURE_API_URL);
+const certificatesClient = createAuthedApiClient(ADMIN_API_URL);
 
 /**
  * Lists personal certificates across all users for admins.
  */
 export function listCertificates(params: CertificateFilters) {
     return certificatesClient.get<PaginatedCertificatesResponse>(
-        '/admin/certificates',
+        '/certificates',
         { params },
     );
 }
@@ -29,7 +33,7 @@ export function listCertificates(params: CertificateFilters) {
  */
 export function getCertificate(certificateId: string) {
     return certificatesClient.get<CertificateDetail>(
-        `/admin/certificates/${certificateId}`,
+        `/certificates/${certificateId}`,
     );
 }
 
@@ -38,7 +42,7 @@ export function getCertificate(certificateId: string) {
  */
 export function downloadCertificatePem(certificateId: string) {
     return certificatesClient.get<string>(
-        `/admin/certificates/${certificateId}/download/pem`,
+        `/certificates/${certificateId}/download/pem`,
         { responseType: 'text' as const },
     );
 }
@@ -48,7 +52,7 @@ export function downloadCertificatePem(certificateId: string) {
  */
 export function downloadCertificateDer(certificateId: string) {
     return certificatesClient.get<Blob>(
-        `/admin/certificates/${certificateId}/download/der`,
+        `/certificates/${certificateId}/download/der`,
         { responseType: 'blob' },
     );
 }
@@ -61,7 +65,7 @@ export function revokeCertificate(
     data: RevokeCertificateInput,
 ) {
     return certificatesClient.post<CertificateDetail>(
-        `/admin/certificates/${certificateId}/revoke`,
+        `/certificates/${certificateId}/revoke`,
         data,
     );
 }
@@ -74,7 +78,7 @@ export function reissueCertificate(
     data: ReissueCertificateInput,
 ) {
     return certificatesClient.post<CertificateDetail>(
-        `/admin/certificates/${certificateId}/reissue`,
+        `/certificates/${certificateId}/reissue`,
         data,
     );
 }
