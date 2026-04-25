@@ -1,4 +1,9 @@
 // API client for admin signature-management pages.
+//
+// These endpoints live in api/admin (the admin trust boundary) — never
+// reach into api/signature directly from the admin app. The base URL is
+// the admin API and routes are mounted under /signatures (no /admin prefix
+// needed — the entire admin API is admin-scoped by guard).
 import { createAuthedApiClient } from '@/api/common/axios-factory';
 import type {
     PaginatedSignatureDocumentsResponse,
@@ -8,18 +13,18 @@ import type {
     SignatureFilters,
 } from './signatures.types';
 
-const SIGNATURE_API_URL =
-    process.env.NEXT_PUBLIC_SIGNATURE_API_URL ??
-    'http://localhost:3002/api/v1';
+const ADMIN_API_URL =
+    process.env.NEXT_PUBLIC_ADMIN_API_URL ??
+    'http://localhost:3001/api/v1';
 
-const signaturesClient = createAuthedApiClient(SIGNATURE_API_URL);
+const signaturesClient = createAuthedApiClient(ADMIN_API_URL);
 
 /**
  * Lists signatures across all users for the admin dashboard.
  */
 export function listSignatures(params: SignatureFilters) {
     return signaturesClient.get<PaginatedSignaturesResponse>(
-        '/admin/signatures',
+        '/signatures',
         { params },
     );
 }
@@ -29,7 +34,7 @@ export function listSignatures(params: SignatureFilters) {
  */
 export function getSignature(signatureId: string) {
     return signaturesClient.get<SignatureDetail>(
-        `/admin/signatures/${signatureId}`,
+        `/signatures/${signatureId}`,
     );
 }
 
@@ -41,7 +46,7 @@ export function listSignatureDocuments(
     params: { page?: number; limit?: number },
 ) {
     return signaturesClient.get<PaginatedSignatureDocumentsResponse>(
-        `/admin/signatures/${signatureId}/documents`,
+        `/signatures/${signatureId}/documents`,
         { params },
     );
 }
@@ -54,7 +59,7 @@ export function revokeSignature(
     data: RevokeSignatureInput,
 ) {
     return signaturesClient.post<SignatureDetail>(
-        `/admin/signatures/${signatureId}/revoke`,
+        `/signatures/${signatureId}/revoke`,
         data,
     );
 }
