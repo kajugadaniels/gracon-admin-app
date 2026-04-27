@@ -20,6 +20,7 @@ This is the operator-facing Next.js application used to manage administrators, r
 - Admin user management screens
 - Foreign identity registry management screens
 - Signature, certificate, institution, and stamp management screens
+- Certificate-request review screens that gate issuance until SUPER_ADMIN approval
 - Timed, reason-gated reveal flows for passport numbers, NIDs, and PIDs
 - Verification review pages
 - Audit log and security-event pages
