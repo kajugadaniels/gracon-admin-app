@@ -24,6 +24,9 @@ const TABS: { id: Tab; label: string; count?: (u: UserDetail) => number }[] = [
 
 interface UserTabsProps {
     user: UserDetail;
+    isSuperAdmin: boolean;
+    onRevealNid: () => void;
+    onRevealPid: () => void;
 }
 
 /**
@@ -32,7 +35,12 @@ interface UserTabsProps {
  * @param user Full user detail payload for the active page.
  * @returns The tab navigation and the active detail panel.
  */
-export function UserTabs({ user }: UserTabsProps) {
+export function UserTabs({
+    user,
+    isSuperAdmin,
+    onRevealNid,
+    onRevealPid,
+}: UserTabsProps) {
     const [active, setActive] = useState<Tab>('profile');
 
     return (
@@ -114,7 +122,14 @@ export function UserTabs({ user }: UserTabsProps) {
                 hidden={active !== 'profile'}
                 style={{ animation: active === 'profile' ? 'tabFadeIn 150ms ease' : undefined }}
             >
-                {active === 'profile' && <UserDetailCard user={user} />}
+                {active === 'profile' && (
+                    <UserDetailCard
+                        user={user}
+                        isSuperAdmin={isSuperAdmin}
+                        onRevealNid={onRevealNid}
+                        onRevealPid={onRevealPid}
+                    />
+                )}
             </div>
 
             <div
