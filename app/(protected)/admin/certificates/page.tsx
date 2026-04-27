@@ -8,18 +8,25 @@ import { PageHeader } from '@/components/shell/PageHeader';
 import { Button, Input, Pagination, Select } from '@/components/ui';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { getFriendlyErrorMessage } from '@/lib/http';
-import { listCertificates } from '@/api/certificates/certificates.api';
+import {
+    listCertificateRequests,
+    listCertificates,
+} from '@/api/certificates/certificates.api';
 import type {
     CertificateStatus,
+    CertificateRequestStatus,
     IdentityType,
+    PaginatedCertificateRequestsResponse,
     PaginatedCertificatesResponse,
 } from '@/api/certificates/certificates.types';
+import { CertificateRequestsTable } from '@/components/certificates/CertificateRequestsTable';
 import { CertificatesTable } from '@/components/certificates/CertificatesTable';
 
 type Filters = {
     search: string;
     identityType: IdentityType | '';
     status: CertificateStatus | '';
+    requestStatus: CertificateRequestStatus | '';
     country: string;
     expiringSoon: boolean;
 };
@@ -31,6 +38,7 @@ function buildQuery(filters: Filters, page: number) {
     if (filters.search) params.set('search', filters.search);
     if (filters.identityType) params.set('identityType', filters.identityType);
     if (filters.status) params.set('status', filters.status);
+    if (filters.requestStatus) params.set('requestStatus', filters.requestStatus);
     if (filters.country) params.set('country', filters.country);
     if (filters.expiringSoon) params.set('expiringSoon', 'true');
     if (page > 1) params.set('page', String(page));
@@ -45,11 +53,13 @@ export default function CertificatesPage() {
         search: searchParams.get('search') ?? '',
         identityType: (searchParams.get('identityType') as IdentityType | '') ?? '',
         status: (searchParams.get('status') as CertificateStatus | '') ?? '',
+        requestStatus: (searchParams.get('requestStatus') as CertificateRequestStatus | '') ?? 'PENDING',
         country: searchParams.get('country') ?? '',
         expiringSoon: searchParams.get('expiringSoon') === 'true',
     });
     const [page, setPage] = useState(Number(searchParams.get('page') ?? 1));
     const [data, setData] = useState<PaginatedCertificatesResponse | null>(null);
+    const [requestData, setRequestData] = useState<PaginatedCertificateRequestsResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const debouncedSearch = useDebounce(filters.search, 350);
@@ -63,16 +73,25 @@ export default function CertificatesPage() {
         setLoading(true);
         setError(null);
         try {
-            const response = await listCertificates({
-                page,
-                limit: LIMIT,
-                search: debouncedSearch || undefined,
-                identityType: filters.identityType || undefined,
-                status: filters.status || undefined,
-                country: filters.country || undefined,
-                expiringSoon: filters.expiringSoon || undefined,
-            });
-            setData(response.data);
+            const [certificatesResponse, requestsResponse] = await Promise.all([
+                listCertificates({
+                    page,
+                    limit: LIMIT,
+                    search: debouncedSearch || undefined,
+                    identityType: filters.identityType || undefined,
+                    status: filters.status || undefined,
+                    country: filters.country || undefined,
+                    expiringSoon: filters.expiringSoon || undefined,
+                }),
+                listCertificateRequests({
+                    page: 1,
+                    limit: 10,
+                    search: debouncedSearch || undefined,
+                    status: filters.requestStatus || undefined,
+                }),
+            ]);
+            setData(certificatesResponse.data);
+            setRequestData(requestsResponse.data);
         } catch (nextError) {
             const message = getFriendlyErrorMessage(
                 nextError,
@@ -83,7 +102,7 @@ export default function CertificatesPage() {
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, filters.country, filters.expiringSoon, filters.identityType, filters.status, page]);
+    }, [debouncedSearch, filters.country, filters.expiringSoon, filters.identityType, filters.requestStatus, filters.status, page]);
 
     useEffect(() => {
         fetchData();
@@ -132,6 +151,17 @@ export default function CertificatesPage() {
                         { value: 'REVOKED', label: 'Revoked' },
                     ]}
                 />
+                <Select
+                    value={filters.requestStatus}
+                    onChange={(event) => updateFilters({ requestStatus: event.target.value as CertificateRequestStatus | '' })}
+                    options={[
+                        { value: '', label: 'All request states' },
+                        { value: 'PENDING', label: 'Pending requests' },
+                        { value: 'APPROVED', label: 'Approved requests' },
+                        { value: 'REJECTED', label: 'Rejected requests' },
+                        { value: 'CANCELLED', label: 'Cancelled requests' },
+                    ]}
+                />
                 <Input
                     placeholder="Country code"
                     value={filters.country}
@@ -147,11 +177,33 @@ export default function CertificatesPage() {
                 </Button>
             </div>
 
-            <CertificatesTable
-                data={data?.items ?? []}
-                loading={loading}
-                error={error}
-            />
+            <section style={sectionStyle}>
+                <div style={sectionHeaderStyle}>
+                    <h2 style={sectionTitleStyle}>Certificate Requests</h2>
+                    <p style={sectionSubtitleStyle}>
+                        {requestData?.total ?? 0} request records match the current review filters.
+                    </p>
+                </div>
+                <CertificateRequestsTable
+                    data={requestData?.items ?? []}
+                    loading={loading}
+                    error={error}
+                />
+            </section>
+
+            <section style={sectionStyle}>
+                <div style={sectionHeaderStyle}>
+                    <h2 style={sectionTitleStyle}>Issued Certificates</h2>
+                    <p style={sectionSubtitleStyle}>
+                        {data?.total ?? 0} personal X.509 certificates match the current lifecycle filters.
+                    </p>
+                </div>
+                <CertificatesTable
+                    data={data?.items ?? []}
+                    loading={loading}
+                    error={error}
+                />
+            </section>
 
             {data && data.totalPages > 1 && (
                 <Pagination
@@ -168,3 +220,26 @@ export default function CertificatesPage() {
         </>
     );
 }
+
+const sectionStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
+};
+
+const sectionHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+};
+
+const sectionTitleStyle: React.CSSProperties = {
+    fontSize: 18,
+    fontWeight: 700,
+    color: 'var(--text-primary)',
+};
+
+const sectionSubtitleStyle: React.CSSProperties = {
+    fontSize: 13,
+    color: 'var(--text-secondary)',
+};
