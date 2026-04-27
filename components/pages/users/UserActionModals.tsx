@@ -14,30 +14,18 @@ const ConfirmModal = dynamic(
     { ssr: false },
 );
 
-const CopyIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="1.75"
-        strokeLinecap="round" strokeLinejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" />
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-);
-
 interface UserActionModalsProps {
     user: UserDetail;
     modal: ModalType;
     reason: string;
     loading: boolean;
-    decryptedNid: string | null;
     onReasonChange: (v: string) => void;
     onClose: () => void;
-    onCloseDecrypt: () => void;
     onDeactivate: () => void;
     onReactivate: () => void;
     onRevoke: () => void;
     onVerifyId: () => void;
     onUnverifyId: () => void;
-    onDecryptNid: () => void;
 }
 
 export function UserActionModals({
@@ -45,30 +33,16 @@ export function UserActionModals({
     modal,
     reason,
     loading,
-    decryptedNid,
     onReasonChange,
     onClose,
-    onCloseDecrypt,
     onDeactivate,
     onReactivate,
     onRevoke,
     onVerifyId,
     onUnverifyId,
-    onDecryptNid,
 }: UserActionModalsProps) {
     const name = `${user.firstName} ${user.lastName}`;
     const activeSessions = user.sessions.length;
-
-    const copyToClipboard = async (value: string) => {
-        try {
-            await navigator.clipboard.writeText(value);
-            const { toast } = await import('sonner');
-            toast.success('Copied to clipboard.');
-        } catch {
-            const { toast } = await import('sonner');
-            toast.error('Failed to copy.');
-        }
-    };
 
     return (
         <>
@@ -139,72 +113,6 @@ export function UserActionModals({
                 onReasonChange={onReasonChange}
                 reasonRequired
             />
-
-            {/* Decrypt NID — inline reveal */}
-            <ConfirmModal
-                open={modal === 'decryptNid'}
-                onClose={onCloseDecrypt}
-                onConfirm={
-                    decryptedNid
-                        ? onCloseDecrypt
-                        : onDecryptNid
-                }
-                loading={loading}
-                variant={decryptedNid ? 'default' : 'danger'}
-                title={decryptedNid ? 'National ID Number' : 'Decrypt National ID'}
-                description={
-                    decryptedNid
-                        ? 'This access has been permanently logged. Close when done.'
-                        : `Decrypting the NID of ${name} is a permanently logged action. Your identity and timestamp are recorded in the audit trail.`
-                }
-                confirmLabel={decryptedNid ? 'Done' : 'Confirm decrypt'}
-                cancelLabel={decryptedNid ? undefined : 'Cancel'}
-            >
-                {/* Inline NID reveal — shown after successful decrypt */}
-                {decryptedNid && (
-                    <div
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 8,
-                            background: 'var(--glass-interactive)',
-                            border: '1px solid var(--glass-interactive-border)',
-                            borderRadius: 'var(--radius-md)',
-                            padding: '10px 14px',
-                            marginBottom: 12,
-                        }}
-                    >
-                        <code
-                            style={{
-                                flex: 1,
-                                fontSize: 15,
-                                fontFamily: 'monospace',
-                                color: 'var(--text-primary)',
-                                letterSpacing: '0.06em',
-                                wordBreak: 'break-all',
-                            }}
-                        >
-                            {decryptedNid}
-                        </code>
-                        <button
-                            onClick={() => copyToClipboard(decryptedNid)}
-                            title="Copy to clipboard"
-                            aria-label="Copy NID"
-                            style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: 'var(--text-muted)',
-                                display: 'flex',
-                                padding: 4,
-                                flexShrink: 0,
-                            }}
-                        >
-                            <CopyIcon />
-                        </button>
-                    </div>
-                )}
-            </ConfirmModal>
         </>
     );
 }
