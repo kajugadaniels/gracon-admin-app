@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import { updateUserStatusApi } from '@/api/users/update-status.api';
 import { revokeSessionsApi } from '@/api/users/revoke-sessions.api';
 import { updateIdVerificationApi } from '@/api/users/update-id-verification.api';
-import { decryptNidApi } from '@/api/users/decrypt-nid.api';
 import type { UserDetail } from '@/api/users/get-user.api';
 
 function getApiErrorMessage(error: unknown, fallback: string) {
@@ -27,7 +26,6 @@ export type ModalType =
     | 'revoke'
     | 'verifyId'
     | 'unverifyId'
-    | 'decryptNid'
     | null;
 
 export function useUserActions(
@@ -37,7 +35,6 @@ export function useUserActions(
     const [modal, setModal] = useState<ModalType>(null);
     const [reason, setReason] = useState('');
     const [loading, setLoading] = useState(false);
-    const [decryptedNid, setDecryptedNid] = useState<string | null>(null);
     const userId = user?.userId ?? null;
 
     const closeModal = useCallback(() => {
@@ -110,30 +107,15 @@ export function useUserActions(
         } finally { setLoading(false); }
     }, [userId, reason, closeModal, onRefresh]);
 
-    const handleDecryptNid = useCallback(async () => {
-        if (!userId) return;
-        setLoading(true);
-        try {
-            const res = await decryptNidApi(userId);
-            setDecryptedNid(res.data.nid);
-            toast.success('NID decrypted. Access has been logged.');
-        } catch (err: unknown) {
-            toast.error(getApiErrorMessage(err, 'Failed to decrypt NID.'));
-            closeModal();
-        } finally { setLoading(false); }
-    }, [userId, closeModal]);
-
     return {
         modal, setModal,
         reason, setReason,
         loading,
-        decryptedNid, setDecryptedNid,
         closeModal,
         handleDeactivate,
         handleReactivate,
         handleRevokeSessions,
         handleVerifyId,
         handleUnverifyId,
-        handleDecryptNid,
     };
 }
