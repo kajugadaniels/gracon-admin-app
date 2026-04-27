@@ -1,13 +1,11 @@
 // StickyActionBar — always-visible action bar at the top of the user
 // detail page. Sticks to the top of the content area when scrolling.
 // Shows the user's name + status at a glance.
-// Contains all three action buttons — always reachable without scrolling.
-// SUPER_ADMIN additionally sees the Decrypt NID button.
+// Contains the high-frequency account action buttons — always reachable without scrolling.
 'use client';
 
 import React from 'react';
 import { Badge, Button } from '@/components/ui';
-import { useAdminAuthStore } from '@/lib/store/admin-auth.store';
 import type { UserDetail } from '@/api/users/get-user.api';
 import type { ModalType } from './useUserActions';
 
@@ -55,17 +53,7 @@ const VerifyIcon = () => (
     </svg>
 );
 
-const KeyIcon = () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2"
-        strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
-    </svg>
-);
-
 export function StickyActionBar({ user, onOpen }: StickyActionBarProps) {
-    const admin = useAdminAuthStore((s) => s.admin);
-    const isSuperAdmin = admin?.role === 'SUPER_ADMIN';
     const activeSessions = user.sessions.length;
 
     return (
@@ -193,18 +181,6 @@ export function StickyActionBar({ user, onOpen }: StickyActionBarProps) {
                     >
                         {user.isIdVerified ? 'Revoke ID' : 'Grant ID'}
                     </Button>
-
-                    {/* NID decrypt — SUPER_ADMIN only */}
-                    {isSuperAdmin && (
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            icon={<KeyIcon />}
-                            onClick={() => onOpen('decryptNid')}
-                        >
-                            Decrypt NID
-                        </Button>
-                    )}
                 </div>
             </div>
         </div>
