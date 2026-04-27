@@ -1,17 +1,20 @@
 // UserDetailCard — left column top section.
 // Shows personal info, citizen identity, and account status flags.
-// NID and PID are always masked here — decrypt is in the actions panel.
+// NID and PID stay masked by default and require a timed reveal flow.
 // Profile image uses the S3 presigned URL if available,
 // falls back to initials avatar.
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
-import { Badge } from '@/components/ui';
+import { Badge, Button } from '@/components/ui';
 import type { UserDetail } from '@/api/users/get-user.api';
 
 interface UserDetailCardProps {
     user: UserDetail;
+    isSuperAdmin: boolean;
+    onRevealNid: () => void;
+    onRevealPid: () => void;
 }
 
 function DetailRow({
@@ -103,7 +106,47 @@ function getRenderableImageSrc(imageUrl: string | null): string | null {
     return null;
 }
 
-export function UserDetailCard({ user }: UserDetailCardProps) {
+function SensitiveValueRow({
+    label,
+    value,
+    canReveal,
+    onReveal,
+}: {
+    label: string;
+    value: string;
+    canReveal: boolean;
+    onReveal: () => void;
+}) {
+    return (
+        <div
+            style={{
+                display: 'grid',
+                gridTemplateColumns: '120px 1fr',
+                gap: 8,
+                padding: '8px 0',
+                borderBottom: '1px solid var(--glass-interactive-border)',
+                alignItems: 'start',
+            }}
+        >
+            <span style={labelTextStyle}>{label}</span>
+            <div style={sensitiveRowValueWrapStyle}>
+                <span style={monoValueStyle}>{value || '—'}</span>
+                {canReveal && (
+                    <Button type="button" size="sm" variant="secondary" onClick={onReveal}>
+                        Request decrypted view
+                    </Button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export function UserDetailCard({
+    user,
+    isSuperAdmin,
+    onRevealNid,
+    onRevealPid,
+}: UserDetailCardProps) {
     const initials =
         `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '?';
     const profileImageSrc = getRenderableImageSrc(user.imageUrl);
@@ -226,8 +269,18 @@ export function UserDetailCard({ user }: UserDetailCardProps) {
             {/* Identity */}
             <div style={{ marginBottom: 16 }}>
                 <SectionLabel>Identity</SectionLabel>
-                <DetailRow label="NID" value={user.nid} mono />
-                <DetailRow label="PID" value={user.pid} mono />
+                <SensitiveValueRow
+                    label="NID"
+                    value={user.nid}
+                    canReveal={isSuperAdmin && user.nid !== '—'}
+                    onReveal={onRevealNid}
+                />
+                <SensitiveValueRow
+                    label="PID"
+                    value={user.pid}
+                    canReveal={isSuperAdmin && user.pid !== '—'}
+                    onReveal={onRevealPid}
+                />
                 <DetailRow label="User ID" value={user.userId} mono />
             </div>
 
@@ -266,3 +319,29 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         </div>
     );
 }
+
+const labelTextStyle: React.CSSProperties = {
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+    color: 'var(--text-muted)',
+    paddingTop: 1,
+    flexShrink: 0,
+};
+
+const monoValueStyle: React.CSSProperties = {
+    fontSize: 13,
+    color: 'var(--text-primary)',
+    fontFamily: 'var(--font-mono, monospace)',
+    wordBreak: 'break-all',
+    lineHeight: 1.5,
+};
+
+const sensitiveRowValueWrapStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    flexWrap: 'wrap',
+};
