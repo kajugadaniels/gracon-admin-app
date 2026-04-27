@@ -13,6 +13,10 @@ import { UserTabs } from './UserTabs';
 import { UserActionModals } from './UserActionModals';
 import { useUserActions } from './useUserActions';
 import { getUserApi, type UserDetail } from '@/api/users/get-user.api';
+import { useAdminAuthStore } from '@/lib/store/admin-auth.store';
+import { decryptNidApi } from '@/api/users/decrypt-nid.api';
+import { decryptPidApi } from '@/api/users/decrypt-pid.api';
+import { SensitiveValueRevealModal } from '@/components/security/SensitiveValueRevealModal';
 
 function getApiErrorMessage(error: unknown, fallback: string) {
     if (typeof error !== 'object' || !error) return fallback;
@@ -38,10 +42,17 @@ const BackIcon = () => (
 
 export function UserDetailClient({ userId }: UserDetailClientProps) {
     const router = useRouter();
+    const admin = useAdminAuthStore((state) => state.admin);
+    const isSuperAdmin = admin?.role === 'SUPER_ADMIN';
 
     const [user, setUser] = useState<UserDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [revealTarget, setRevealTarget] = useState<'nid' | 'pid' | null>(null);
+    const [revealLoading, setRevealLoading] = useState(false);
+    const [revealError, setRevealError] = useState<string | null>(null);
+    const [revealedValue, setRevealedValue] = useState<string | null>(null);
+    const [revealResetKey, setRevealResetKey] = useState<string | null>(null);
 
     const fetchUser = useCallback(async () => {
         setLoading(true);
@@ -62,6 +73,35 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
 
     // All action state lives here — passed down to bar + modals
     const actions = useUserActions(user, fetchUser);
+
+    const closeRevealModal = useCallback(() => {
+        setRevealTarget(null);
+        setRevealLoading(false);
+        setRevealError(null);
+        setRevealedValue(null);
+        setRevealResetKey(null);
+    }, []);
+
+    const handleSensitiveReveal = useCallback(async (reason: string) => {
+        if (!user) return;
+        setRevealLoading(true);
+        setRevealError(null);
+        try {
+            if (revealTarget === 'pid') {
+                const response = await decryptPidApi(user.userId, reason);
+                setRevealedValue(response.data.pid);
+                setRevealResetKey(`${response.data.userId}-pid-${Date.now()}`);
+            } else {
+                const response = await decryptNidApi(user.userId, reason);
+                setRevealedValue(response.data.nid);
+                setRevealResetKey(`${response.data.userId}-nid-${Date.now()}`);
+            }
+        } catch (nextError: unknown) {
+            setRevealError(getApiErrorMessage(nextError, 'Failed to reveal value.'));
+        } finally {
+            setRevealLoading(false);
+        }
+    }, [revealTarget, user]);
 
     if (loading) {
         return <Spinner fullPage label="Loading user profile…" />;
@@ -104,7 +144,22 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
             />
 
             {/* Tabbed content */}
-            <UserTabs user={user} />
+            <UserTabs
+                user={user}
+                isSuperAdmin={Boolean(isSuperAdmin)}
+                onRevealNid={() => {
+                    setRevealTarget('nid');
+                    setRevealError(null);
+                    setRevealedValue(null);
+                    setRevealResetKey(null);
+                }}
+                onRevealPid={() => {
+                    setRevealTarget('pid');
+                    setRevealError(null);
+                    setRevealedValue(null);
+                    setRevealResetKey(null);
+                }}
+            />
 
             {/* All modals rendered at page level */}
             <UserActionModals
@@ -112,19 +167,31 @@ export function UserDetailClient({ userId }: UserDetailClientProps) {
                 modal={actions.modal}
                 reason={actions.reason}
                 loading={actions.loading}
-                decryptedNid={actions.decryptedNid}
                 onReasonChange={actions.setReason}
                 onClose={actions.closeModal}
-                onCloseDecrypt={() => {
-                    actions.closeModal();
-                    actions.setDecryptedNid(null);
-                }}
                 onDeactivate={actions.handleDeactivate}
                 onReactivate={actions.handleReactivate}
                 onRevoke={actions.handleRevokeSessions}
                 onVerifyId={actions.handleVerifyId}
                 onUnverifyId={actions.handleUnverifyId}
-                onDecryptNid={actions.handleDecryptNid}
+            />
+            <SensitiveValueRevealModal
+                open={Boolean(revealTarget)}
+                loading={revealLoading}
+                error={revealError}
+                value={revealedValue}
+                resetKey={revealResetKey}
+                title={revealTarget === 'pid' ? 'Request decrypted PID view' : 'Request decrypted NID view'}
+                submitLabel={revealTarget === 'pid' ? 'Decrypt PID' : 'Decrypt NID'}
+                warningText={
+                    revealTarget === 'pid'
+                        ? 'PID decryption is logged and rate-limited. Use only for documented legitimate reasons.'
+                        : 'NID decryption is logged and rate-limited. Use only for documented legitimate reasons.'
+                }
+                doneText="This value will not be displayed again. Copy it now if needed."
+                countdownSeconds={20}
+                onClose={closeRevealModal}
+                onSubmit={handleSensitiveReveal}
             />
         </>
     );
