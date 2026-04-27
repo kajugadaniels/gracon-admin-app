@@ -253,7 +253,7 @@ export function UserActionsPanel({ user, onRefresh }: UserActionsPanelProps) {
     const handleDecryptNid = async () => {
         setLoading(true);
         try {
-            const res = await decryptNidApi(user.userId);
+            const res = await decryptNidApi(user.userId, reason.trim());
             setDecryptedNid(res.data.nid);
             // Keep modal open to show the value — close handled by user
             toast.success('NID decrypted. Access has been logged.');
