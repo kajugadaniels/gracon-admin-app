@@ -7,8 +7,12 @@ import { createAuthedApiClient } from '@/api/common/axios-factory';
 import type {
     CertificateDetail,
     CertificateFilters,
+    CertificateRequestDetail,
+    CertificateRequestFilters,
+    PaginatedCertificateRequestsResponse,
     PaginatedCertificatesResponse,
     ReissueCertificateInput,
+    ReviewCertificateRequestInput,
     RevokeCertificateInput,
 } from './certificates.types';
 
@@ -29,11 +33,30 @@ export function listCertificates(params: CertificateFilters) {
 }
 
 /**
+ * Lists certificate approval requests across all users for admins.
+ */
+export function listCertificateRequests(params: CertificateRequestFilters) {
+    return certificatesClient.get<PaginatedCertificateRequestsResponse>(
+        '/certificates/requests',
+        { params },
+    );
+}
+
+/**
  * Fetches one certificate detail payload.
  */
 export function getCertificate(certificateId: string) {
     return certificatesClient.get<CertificateDetail>(
         `/certificates/${certificateId}`,
+    );
+}
+
+/**
+ * Fetches one certificate request detail payload.
+ */
+export function getCertificateRequest(requestId: string) {
+    return certificatesClient.get<CertificateRequestDetail>(
+        `/certificates/requests/${requestId}`,
     );
 }
 
@@ -79,6 +102,32 @@ export function reissueCertificate(
 ) {
     return certificatesClient.post<CertificateDetail>(
         `/certificates/${certificateId}/reissue`,
+        data,
+    );
+}
+
+/**
+ * Approves one pending certificate request.
+ */
+export function approveCertificateRequest(
+    requestId: string,
+    data: ReviewCertificateRequestInput,
+) {
+    return certificatesClient.post<CertificateRequestDetail>(
+        `/certificates/requests/${requestId}/approve`,
+        data,
+    );
+}
+
+/**
+ * Rejects one pending certificate request.
+ */
+export function rejectCertificateRequest(
+    requestId: string,
+    data: ReviewCertificateRequestInput,
+) {
+    return certificatesClient.post<CertificateRequestDetail>(
+        `/certificates/requests/${requestId}/reject`,
         data,
     );
 }
