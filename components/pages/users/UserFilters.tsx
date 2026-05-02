@@ -5,14 +5,14 @@
 'use client';
 
 import React from 'react';
-import { Input, Select, Button } from '@/components/ui';
-import { useDebounce } from '@/lib/hooks/useDebounce';
+import { Input, Button } from '@/components/ui';
 
 export interface UserFilterState {
     search: string;
     isActive: string;   // '' | 'true' | 'false'
     isVerified: string;
     isIdVerified: string;
+    identityType: string; // '' | 'NID' | 'FIN'
 }
 
 const DEFAULT_FILTERS: UserFilterState = {
@@ -20,6 +20,7 @@ const DEFAULT_FILTERS: UserFilterState = {
     isActive: '',
     isVerified: '',
     isIdVerified: '',
+    identityType: '',
 };
 
 interface UserFiltersProps {
@@ -47,6 +48,12 @@ const ID_VERIFIED_OPTIONS = [
     { value: 'false', label: 'ID pending only' },
 ];
 
+const IDENTITY_TYPE_OPTIONS = [
+    { value: '', label: 'All identities' },
+    { value: 'NID', label: 'Citizens' },
+    { value: 'FIN', label: 'Foreign users' },
+];
+
 export function UserFilters({
     filters,
     onChange,
@@ -58,7 +65,8 @@ export function UserFilters({
         filters.search !== '' ||
         filters.isActive !== '' ||
         filters.isVerified !== '' ||
-        filters.isIdVerified !== '';
+        filters.isIdVerified !== '' ||
+        filters.identityType !== '';
 
     return (
         <div
@@ -84,6 +92,20 @@ export function UserFilters({
             </div>
 
             {/* Account status */}
+            <select
+                className="select"
+                value={filters.identityType}
+                onChange={(e) =>
+                    onChange({ ...filters, identityType: e.target.value })
+                }
+                aria-label="Filter by identity source"
+                style={{ flex: '0 0 auto', width: 150 }}
+            >
+                {IDENTITY_TYPE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+            </select>
+
             <select
                 className="select"
                 value={filters.isActive}
