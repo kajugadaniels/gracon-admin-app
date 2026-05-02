@@ -5,11 +5,14 @@ export interface ListUsersParams {
     isActive?: boolean;
     isVerified?: boolean;
     isIdVerified?: boolean;
+    identityType?: IdentityType;
     createdFrom?: string;
     createdTo?: string;
     page?: number;
     limit?: number;
 }
+
+export type IdentityType = 'NID' | 'FIN';
 
 export interface UserListItem {
     userId: string;
@@ -17,6 +20,7 @@ export interface UserListItem {
     lastName: string;
     email: string;
     phoneNumber: string | null;
+    identityType: IdentityType | null;
     isActive: boolean;
     isVerified: boolean;
     isIdVerified: boolean;
