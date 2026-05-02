@@ -25,6 +25,12 @@ function formatDate(iso: string): string {
     });
 }
 
+function getIdentityLabel(identityType: UserListItem['identityType']) {
+    if (identityType === 'FIN') return 'Foreign';
+    if (identityType === 'NID') return 'Citizen';
+    return 'Unlinked';
+}
+
 export function UserTable({ data, loading, error }: UserTableProps) {
     const router = useRouter();
 
@@ -40,6 +46,19 @@ export function UserTable({ data, loading, error }: UserTableProps) {
                     </span>
                     <span className="sub">{row.email}</span>
                 </div>
+            ),
+        },
+        {
+            key: 'identityType',
+            header: 'Identity',
+            width: '100px',
+            render: (row) => (
+                <Badge
+                    variant={row.identityType === 'FIN' ? 'info' : 'primary'}
+                    dot
+                >
+                    {getIdentityLabel(row.identityType)}
+                </Badge>
             ),
         },
         {
@@ -110,7 +129,7 @@ export function UserTable({ data, loading, error }: UserTableProps) {
     return (
         // Horizontal scroll wrapper for small screens
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <div style={{ minWidth: 640 }}>
+            <div style={{ minWidth: 740 }}>
                 <DataTable
                     columns={columns}
                     data={data}
