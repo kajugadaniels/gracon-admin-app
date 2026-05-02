@@ -44,6 +44,8 @@ export function CertificateRequestDetailCard({
     onApprove,
     onReject,
 }: CertificateRequestDetailCardProps) {
+    const isBanned = request.certificateAccessPolicy.isBanned;
+
     return (
         <section className="glass-card" style={sectionStyle}>
             <div style={headerStyle}>
@@ -58,6 +60,21 @@ export function CertificateRequestDetailCard({
                     {request.status.toLowerCase()}
                 </Badge>
             </div>
+
+            {isBanned && (
+                <div style={policyWarningStyle}>
+                    <strong>User certificate access is banned</strong>
+                    <span>
+                        {request.certificateAccessPolicy.banReason ??
+                            'No ban reason was recorded.'}
+                    </span>
+                    {request.certificateAccessPolicy.bannedAt && (
+                        <span>
+                            Banned on {formatDate(request.certificateAccessPolicy.bannedAt)}
+                        </span>
+                    )}
+                </div>
+            )}
 
             <div style={gridStyle}>
                 <Field label="Identity Type" value={request.identityType} />
@@ -86,7 +103,12 @@ export function CertificateRequestDetailCard({
 
             {canManage && request.status === 'PENDING' && (
                 <div style={actionsStyle}>
-                    <Button type="button" variant="secondary" onClick={onApprove}>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={onApprove}
+                        disabled={isBanned}
+                    >
                         Approve Request
                     </Button>
                     <Button type="button" variant="danger" onClick={onReject}>
@@ -167,4 +189,17 @@ const actionsStyle: React.CSSProperties = {
     justifyContent: 'flex-end',
     gap: 8,
     flexWrap: 'wrap',
+};
+
+const policyWarningStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    padding: 14,
+    borderRadius: 'var(--radius-md)',
+    background: 'var(--error-bg)',
+    border: '1px solid var(--error-border)',
+    color: 'var(--error-text)',
+    fontSize: 13,
+    lineHeight: 1.5,
 };
