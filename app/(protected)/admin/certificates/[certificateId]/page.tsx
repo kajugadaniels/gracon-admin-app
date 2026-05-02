@@ -9,7 +9,9 @@ import { PageHeader } from '@/components/shell/PageHeader';
 import { Button, EmptyState, Spinner } from '@/components/ui';
 import { getFriendlyErrorMessage } from '@/lib/http';
 import {
+    banCertificateAccessFromCertificate,
     getCertificate,
+    liftCertificateAccessBan,
     reissueCertificate,
     revokeCertificate,
 } from '@/api/certificates/certificates.api';
@@ -17,6 +19,7 @@ import type { CertificateDetail } from '@/api/certificates/certificates.types';
 import { CertificateDetailCard } from '@/components/certificates/CertificateDetailCard';
 import { ReissueCertificateModal } from '@/components/certificates/ReissueCertificateModal';
 import { RevokeCertificateModal } from '@/components/certificates/RevokeCertificateModal';
+import { CertificateAccessPolicyModal } from '@/components/certificates/CertificateAccessPolicyModal';
 
 export default function CertificateDetailPage() {
     const router = useRouter();
@@ -29,6 +32,7 @@ export default function CertificateDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [revokeOpen, setRevokeOpen] = useState(false);
     const [reissueOpen, setReissueOpen] = useState(false);
+    const [policyModal, setPolicyModal] = useState<'ban' | 'unban' | null>(null);
     const [mutationLoading, setMutationLoading] = useState(false);
 
     const load = useCallback(async () => {
@@ -78,6 +82,39 @@ export default function CertificateDetailPage() {
         }
     };
 
+    const handlePolicyChange = async (reason: string) => {
+        if (!certificate || !policyModal) return;
+
+        setMutationLoading(true);
+        try {
+            if (policyModal === 'ban') {
+                const response = await banCertificateAccessFromCertificate(
+                    certificateId,
+                    { reason },
+                );
+                setCertificate(response.data);
+                toast.success('Certificate access banned.');
+            } else {
+                await liftCertificateAccessBan(certificate.userId, { reason });
+                const response = await getCertificate(certificateId);
+                setCertificate(response.data);
+                toast.success('Certificate access ban lifted.');
+            }
+            setPolicyModal(null);
+        } catch (nextError) {
+            toast.error(
+                getFriendlyErrorMessage(
+                    nextError,
+                    policyModal === 'ban'
+                        ? 'Failed to ban certificate access.'
+                        : 'Failed to lift certificate access ban.',
+                ),
+            );
+        } finally {
+            setMutationLoading(false);
+        }
+    };
+
     if (loading) {
         return <Spinner fullPage label="Loading certificate…" />;
     }
@@ -109,6 +146,8 @@ export default function CertificateDetailPage() {
                 canManage={Boolean(canManage)}
                 onReissue={() => setReissueOpen(true)}
                 onRevoke={() => setRevokeOpen(true)}
+                onBanAccess={() => setPolicyModal('ban')}
+                onLiftBan={() => setPolicyModal('unban')}
             />
 
             <RevokeCertificateModal
@@ -122,6 +161,13 @@ export default function CertificateDetailPage() {
                 loading={mutationLoading}
                 onClose={() => setReissueOpen(false)}
                 onConfirm={handleReissue}
+            />
+            <CertificateAccessPolicyModal
+                open={policyModal !== null}
+                mode={policyModal ?? 'ban'}
+                loading={mutationLoading}
+                onClose={() => setPolicyModal(null)}
+                onConfirm={handlePolicyChange}
             />
         </>
     );
