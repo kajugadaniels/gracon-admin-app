@@ -17,7 +17,6 @@ import { UserFilters, UserTable, type UserFilterState }
     from '@/components/pages/users';
 import {
     listUsersApi,
-    type UserListItem,
     type PaginatedUsersResponse,
 } from '@/api/users/list-users.api';
 import { useDebounce } from '@/lib/hooks/useDebounce';
@@ -36,6 +35,7 @@ export function UsersClient() {
         isActive: searchParams.get('isActive') ?? '',
         isVerified: searchParams.get('isVerified') ?? '',
         isIdVerified: searchParams.get('isIdVerified') ?? '',
+        identityType: searchParams.get('identityType') ?? '',
     });
     const [page, setPage] = useState(
         Number(searchParams.get('page') ?? 1),
@@ -56,6 +56,7 @@ export function UsersClient() {
             if (newFilters.isActive) params.set('isActive', newFilters.isActive);
             if (newFilters.isVerified) params.set('isVerified', newFilters.isVerified);
             if (newFilters.isIdVerified) params.set('isIdVerified', newFilters.isIdVerified);
+            if (newFilters.identityType) params.set('identityType', newFilters.identityType);
             if (newPage > 1) params.set('page', String(newPage));
 
             const query = params.toString();
@@ -88,6 +89,7 @@ export function UsersClient() {
             if (currentFilters.isActive !== '') params.isActive = currentFilters.isActive === 'true';
             if (currentFilters.isVerified !== '') params.isVerified = currentFilters.isVerified === 'true';
             if (currentFilters.isIdVerified !== '') params.isIdVerified = currentFilters.isIdVerified === 'true';
+            if (currentFilters.identityType !== '') params.identityType = currentFilters.identityType;
 
             const res = await listUsersApi(params);
             setData(res.data);
@@ -101,7 +103,7 @@ export function UsersClient() {
     // Fetch when debounced search, filters, or page changes
     useEffect(() => {
         fetchUsers(filters, page, debouncedSearch);
-    }, [debouncedSearch, filters.isActive, filters.isVerified, filters.isIdVerified, page]);
+    }, [debouncedSearch, filters.isActive, filters.isVerified, filters.isIdVerified, filters.identityType, page]);
 
     // When filters change (not search) reset to page 1
     const handleFilterChange = (newFilters: UserFilterState) => {
@@ -129,7 +131,7 @@ export function UsersClient() {
                 filters={filters}
                 onChange={handleFilterChange}
                 total={data?.pagination.total}
-                loading={loading}
+                loading={loading || isPending}
             />
 
             <UserTable
