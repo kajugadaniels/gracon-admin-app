@@ -8,6 +8,7 @@ export type CertificateRequestStatus =
     | 'APPROVED'
     | 'REJECTED'
     | 'CANCELLED';
+export type CertificateAccessPolicyStatus = 'ALLOWED' | 'BANNED';
 export type CrlReasonCode =
     | 'keyCompromise'
     | 'affiliationChanged'
@@ -56,6 +57,7 @@ export interface CertificateDetail {
     revokedAt: string | null;
     revokedReason: string | null;
     status: CertificateStatus;
+    certificateAccessPolicy: CertificateAccessPolicy;
 }
 
 export interface CertificateRequestListItem {
@@ -70,6 +72,7 @@ export interface CertificateRequestListItem {
     requestedAt: string;
     reviewedAt: string | null;
     issuedCertificateId: string | null;
+    certificateAccessPolicy: CertificateAccessPolicy;
 }
 
 export interface CertificateRequestDetail {
@@ -93,6 +96,17 @@ export interface CertificateRequestDetail {
     issuedCertificateId: string | null;
     requestedAt: string;
     updatedAt: string;
+    certificateAccessPolicy: CertificateAccessPolicy;
+}
+
+export interface CertificateAccessPolicy {
+    status: CertificateAccessPolicyStatus;
+    isBanned: boolean;
+    banReason: string | null;
+    bannedAt: string | null;
+    unbanReason: string | null;
+    unbannedAt: string | null;
+    updatedAt: string | null;
 }
 
 export interface CertificateFilters {
@@ -122,6 +136,10 @@ export interface ReissueCertificateInput {
 }
 
 export interface ReviewCertificateRequestInput {
+    reason: string;
+}
+
+export interface CertificateAccessPolicyInput {
     reason: string;
 }
 
