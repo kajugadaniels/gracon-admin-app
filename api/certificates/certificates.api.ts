@@ -7,6 +7,8 @@ import { createAuthedApiClient } from '@/api/common/axios-factory';
 import type {
     CertificateDetail,
     CertificateFilters,
+    CertificateAccessPolicy,
+    CertificateAccessPolicyInput,
     CertificateRequestDetail,
     CertificateRequestFilters,
     PaginatedCertificateRequestsResponse,
@@ -102,6 +104,45 @@ export function reissueCertificate(
 ) {
     return certificatesClient.post<CertificateDetail>(
         `/certificates/${certificateId}/reissue`,
+        data,
+    );
+}
+
+/**
+ * Revokes a certificate and blocks future certificate access for its owner.
+ */
+export function banCertificateAccessFromCertificate(
+    certificateId: string,
+    data: CertificateAccessPolicyInput,
+) {
+    return certificatesClient.post<CertificateDetail>(
+        `/certificates/${certificateId}/ban-access`,
+        data,
+    );
+}
+
+/**
+ * Blocks future certificate access for a user.
+ */
+export function banCertificateAccessForUser(
+    userId: string,
+    data: CertificateAccessPolicyInput,
+) {
+    return certificatesClient.post<CertificateAccessPolicy>(
+        `/certificates/users/${userId}/access/ban`,
+        data,
+    );
+}
+
+/**
+ * Restores certificate request access for a user.
+ */
+export function liftCertificateAccessBan(
+    userId: string,
+    data: CertificateAccessPolicyInput,
+) {
+    return certificatesClient.post<CertificateAccessPolicy>(
+        `/certificates/users/${userId}/access/unban`,
         data,
     );
 }
