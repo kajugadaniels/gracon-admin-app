@@ -58,9 +58,14 @@ export function CertificateRequestsTable({
             header: 'Status',
             width: '120px',
             render: (row) => (
-                <Badge variant={getBadgeVariant(row.status)}>
-                    {row.status.toLowerCase()}
-                </Badge>
+                <div style={badgeStackStyle}>
+                    <Badge variant={getBadgeVariant(row.status)}>
+                        {row.status.toLowerCase()}
+                    </Badge>
+                    {row.certificateAccessPolicy.isBanned && (
+                        <Badge variant="danger">banned</Badge>
+                    )}
+                </div>
             ),
         },
         {
@@ -120,3 +125,9 @@ export function CertificateRequestsTable({
         />
     );
 }
+
+const badgeStackStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: 6,
+    flexWrap: 'wrap',
+};
