@@ -141,6 +141,12 @@ function SensitiveValueRow({
     );
 }
 
+function getIdentitySourceLabel(identityType: UserDetail['identityType']) {
+    if (identityType === 'FIN') return 'Foreign Identity Number (FIN)';
+    if (identityType === 'NID') return 'Rwandan National ID (NID)';
+    return 'Not linked';
+}
+
 export function UserDetailCard({
     user,
     isSuperAdmin,
@@ -269,6 +275,14 @@ export function UserDetailCard({
             {/* Identity */}
             <div style={{ marginBottom: 16 }}>
                 <SectionLabel>Identity</SectionLabel>
+                <DetailRow
+                    label="Source"
+                    value={(
+                        <Badge variant={user.identityType === 'FIN' ? 'info' : 'primary'}>
+                            {getIdentitySourceLabel(user.identityType)}
+                        </Badge>
+                    )}
+                />
                 <SensitiveValueRow
                     label="NID"
                     value={user.nid}
