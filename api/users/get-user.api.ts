@@ -1,4 +1,5 @@
 import { apiClient } from '@/api/client';
+import type { IdentityType } from './list-users.api';
 
 export interface UserDetail {
     userId: string;
@@ -10,6 +11,7 @@ export interface UserDetail {
     nid: string;
     pid: string;
     nidDecrypted: boolean;
+    identityType: IdentityType | null;
     dateOfBirth: string | null;
     sex: string | null;
     countryOfBirth: string | null;
