@@ -12,6 +12,8 @@ interface CertificateDetailCardProps {
     canManage: boolean;
     onRevoke: () => void;
     onReissue: () => void;
+    onBanAccess: () => void;
+    onLiftBan: () => void;
 }
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
@@ -40,7 +42,11 @@ export function CertificateDetailCard({
     canManage,
     onReissue,
     onRevoke,
+    onBanAccess,
+    onLiftBan,
 }: CertificateDetailCardProps) {
+    const isBanned = certificate.certificateAccessPolicy.isBanned;
+
     return (
         <section className="glass-card" style={sectionStyle}>
             <div style={headerStyle}>
@@ -64,6 +70,21 @@ export function CertificateDetailCard({
                 </Badge>
             </div>
 
+            {isBanned && (
+                <div style={policyWarningStyle}>
+                    <strong>Certificate access banned</strong>
+                    <span>
+                        {certificate.certificateAccessPolicy.banReason ??
+                            'No ban reason was recorded.'}
+                    </span>
+                    {certificate.certificateAccessPolicy.bannedAt && (
+                        <span>
+                            Banned on {formatDate(certificate.certificateAccessPolicy.bannedAt)}
+                        </span>
+                    )}
+                </div>
+            )}
+
             <div style={gridStyle}>
                 <Field label="Serial Number" value={<span style={monoStyle}>{certificate.serialNumber}</span>} />
                 <Field label="Fingerprint" value={<span style={monoStyle}>{certificate.fingerprintSha256}</span>} />
@@ -79,10 +100,29 @@ export function CertificateDetailCard({
 
             {canManage && (
                 <div style={actionsStyle}>
-                    <Button type="button" variant="secondary" onClick={onReissue}>
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={onReissue}
+                        disabled={isBanned}
+                    >
                         Reissue Certificate
                     </Button>
-                    <Button type="button" variant="danger" onClick={onRevoke}>
+                    {!isBanned ? (
+                        <Button type="button" variant="danger" onClick={onBanAccess}>
+                            Ban Access
+                        </Button>
+                    ) : (
+                        <Button type="button" variant="primary" onClick={onLiftBan}>
+                            Lift Ban
+                        </Button>
+                    )}
+                    <Button
+                        type="button"
+                        variant="danger"
+                        onClick={onRevoke}
+                        disabled={certificate.status === 'REVOKED'}
+                    >
                         Revoke Certificate
                     </Button>
                 </div>
@@ -137,6 +177,19 @@ const actionsStyle: React.CSSProperties = {
     justifyContent: 'flex-end',
     gap: 8,
     flexWrap: 'wrap',
+};
+
+const policyWarningStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 6,
+    padding: 14,
+    borderRadius: 'var(--radius-md)',
+    background: 'var(--error-bg)',
+    border: '1px solid var(--error-border)',
+    color: 'var(--error-text)',
+    fontSize: 13,
+    lineHeight: 1.5,
 };
 
 const labelStyle: React.CSSProperties = {
