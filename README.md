@@ -66,6 +66,7 @@ constants/        app-level configuration
 
 ```text
 app/admin/
+  agents/        project-local AI agent rules
   app/
   api/
   components/
@@ -74,6 +75,12 @@ app/admin/
   public/
   package.json
 ```
+
+## AI Agent Rules
+
+Project-local AI guidance lives in `agents/README.md`.
+
+Read that guide before changing admin auth/session behavior, protected shell navigation, foreign identity registry screens, certificate review controls, audit/security-event pages, or sensitive reveal workflows. The guide is intentionally specific to this frontend so contributors preserve the admin trust boundary and do not mix admin flows with user-facing apps.
 
 ## Local Commands
 
