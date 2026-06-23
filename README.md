@@ -82,11 +82,18 @@ Project-local AI guidance lives in `agents/README.md`.
 
 Read that guide before changing admin auth/session behavior, protected shell navigation, foreign identity registry screens, certificate review controls, audit/security-event pages, or sensitive reveal workflows. The guide is intentionally specific to this frontend so contributors preserve the admin trust boundary and do not mix admin flows with user-facing apps.
 
+## Security Hardening
+
+Read [SECURITY.md](./SECURITY.md) before changing admin login, refresh, logout,
+protected routing, sensitive reveal flows, control-plane API URLs, or admin
+token storage.
+
 ## Local Commands
 
 ```bash
 npm install
 npm run dev
+npm run check:security
 npm run build
 npm run lint
 ```
