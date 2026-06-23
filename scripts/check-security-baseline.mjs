@@ -110,9 +110,46 @@ function checkGitignore() {
     }
 }
 
+function checkNextSecurityHeaders() {
+    const configPath = join(projectRoot, 'next.config.ts');
+    if (!existsSync(configPath)) {
+        errors.push('next.config.ts is required.');
+        return;
+    }
+
+    const config = readFileSync(configPath, 'utf8');
+    for (const marker of [
+        'Content-Security-Policy',
+        'Referrer-Policy',
+        'X-Content-Type-Options',
+        'X-Frame-Options',
+        'Permissions-Policy',
+        'frame-ancestors',
+        'camera=()',
+    ]) {
+        if (!config.includes(marker)) {
+            errors.push(`next.config.ts must configure ${marker}.`);
+        }
+    }
+}
+
+function checkWorkflowSecretScanning() {
+    const workflowPath = join(projectRoot, '.github/workflows/app-security.yml');
+    if (!existsSync(workflowPath)) {
+        errors.push('.github/workflows/app-security.yml is required.');
+        return;
+    }
+
+    const workflow = readFileSync(workflowPath, 'utf8');
+    if (!workflow.includes('gitleaks/gitleaks-action')) {
+        errors.push('app-security workflow must run Gitleaks secret scanning.');
+    }
+}
+
 function checkSourceBoundary() {
     const sensitiveLocalStorage = /\blocalStorage\b.*(token|jwt|secret|password|private|nid|pid|passport)/i;
     const forbiddenUserAuthConfig = ['NEXT_PUBLIC_AUTH_API_URL', 'NEXT_PUBLIC_API_URL'];
+    const forbiddenUserSessionMarkers = ['av_at', 'av_rt', 'g360_at', 'g360_rt', 'session_active'];
 
     for (const file of walk(projectRoot)) {
         const relativePath = relative(projectRoot, file);
@@ -131,7 +168,36 @@ function checkSourceBoundary() {
                     errors.push(`${relativePath}:${index + 1} must not configure user-auth APIs inside app/admin.`);
                 }
             }
+
+            for (const marker of forbiddenUserSessionMarkers) {
+                if (line.includes(marker)) {
+                    errors.push(`${relativePath}:${index + 1} must not use user-session marker ${marker} inside app/admin.`);
+                }
+            }
         });
+    }
+}
+
+function checkAdminTokenIsolation() {
+    const storePath = join(projectRoot, 'lib/store/admin-auth.store.ts');
+    const proxyPath = join(projectRoot, 'proxy.ts');
+    const apiClientPath = join(projectRoot, 'api/common/axios-factory.ts');
+
+    for (const requiredPath of [storePath, proxyPath, apiClientPath]) {
+        if (!existsSync(requiredPath)) {
+            errors.push(`${relative(projectRoot, requiredPath)} is required for admin session isolation.`);
+            return;
+        }
+    }
+
+    const store = readFileSync(storePath, 'utf8');
+    const proxy = readFileSync(proxyPath, 'utf8');
+    const apiClient = readFileSync(apiClientPath, 'utf8');
+
+    for (const marker of ['adm_at', 'adm_rt', 'admin_session']) {
+        if (!store.includes(marker) && !apiClient.includes(marker) && !proxy.includes(marker)) {
+            errors.push(`admin session isolation must use ${marker}.`);
+        }
     }
 }
 
@@ -160,7 +226,10 @@ function checkRedirectSafety() {
 checkEnvExample();
 checkDeployEnv();
 checkGitignore();
+checkNextSecurityHeaders();
+checkWorkflowSecretScanning();
 checkSourceBoundary();
+checkAdminTokenIsolation();
 checkRedirectSafety();
 
 if (errors.length > 0) {
