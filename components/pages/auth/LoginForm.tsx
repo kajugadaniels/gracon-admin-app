@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { adminLoginApi } from '@/api/auth/admin-login.api';
+import { resolveSafeAdminRedirect } from '@/lib/auth/redirect-safety';
 import { useAdminAuthStore } from '@/lib/store/admin-auth.store';
 
 const schema = z.object({
@@ -66,7 +67,7 @@ export function LoginForm() {
             const { accessToken, refreshToken, admin } = res.data.data;
             setTokens(accessToken, refreshToken, admin);
             const next = new URLSearchParams(window.location.search).get('next');
-            router.replace(next ?? '/dashboard');
+            router.replace(resolveSafeAdminRedirect(next));
         } catch (err: unknown) {
             const message =
                 (err as { response?: { data?: { message?: string } } })
