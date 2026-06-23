@@ -86,7 +86,8 @@ Read that guide before changing admin auth/session behavior, protected shell nav
 
 Read [SECURITY.md](./SECURITY.md) before changing admin login, refresh, logout,
 protected routing, sensitive reveal flows, control-plane API URLs, or admin
-token storage.
+token storage. Also read it before changing CSP headers or app security
+workflow checks.
 
 ## Local Commands
 
