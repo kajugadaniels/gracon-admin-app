@@ -6,7 +6,8 @@
     "dev": "next dev -p 4001",
     "build": "next build",
     "start": "next start -p 4001",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:security": "node scripts/check-security-baseline.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
