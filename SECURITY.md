@@ -41,3 +41,12 @@ Run deployment env validation with real production env values before release:
 ```bash
 CHECK_DEPLOY_ENV=true npm run check:security
 ```
+
+## Browser Hardening
+
+- `next.config.ts` owns the app-wide CSP and security headers.
+- The app security workflow runs Gitleaks before install/build steps.
+- Security checks reject user-session markers such as `g360_at`, `g360_rt`,
+  `av_at`, `av_rt`, and `session_active` inside the admin app.
+- Admin session state must continue to use `adm_at`, `adm_rt`, and
+  `admin_session`.
